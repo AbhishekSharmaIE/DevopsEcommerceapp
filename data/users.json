@@ -1,0 +1,14 @@
+{
+    "users": {
+        "1": {
+            "username": "Abhishek",
+            "email": "abhisheksharma.irl@gmail.com",
+            "password": "$2b$12$RXMOYNZh3BQfbYEOOiumbePJXhNvzQjdi9zX7fJvm1mp4pV8Ioh6S"
+        },
+        "2": {
+            "username": "Abhis",
+            "email": "abcd@gmail.com",
+            "password": "$2b$12$yHmk6vhYF6xPfwO41N.z/.XNfHv9pJAhySQSvWdM7NiEGMI4O5pie"
+        }
+    }
+}
