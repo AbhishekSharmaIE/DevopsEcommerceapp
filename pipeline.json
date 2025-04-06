@@ -36,6 +36,36 @@
                 ]
             },
             {
+                "name": "CodeQL",
+                "actions": [
+                    {
+                        "name": "CodeQL",
+                        "actionTypeId": {
+                            "category": "Build",
+                            "owner": "AWS",
+                            "provider": "CodeBuild",
+                            "version": "1"
+                        },
+                        "runOrder": 1,
+                        "configuration": {
+                            "ProjectName": "ecommerce-app-codeql"
+                        },
+                        "outputArtifacts": [
+                            {
+                                "name": "CodeQLArtifact"
+                            }
+                        ],
+                        "inputArtifacts": [
+                            {
+                                "name": "SourceArtifact"
+                            }
+                        ],
+                        "region": "eu-west-1",
+                        "namespace": "CodeQLVariables"
+                    }
+                ]
+            },
+            {
                 "name": "Build",
                 "actions": [
                     {
