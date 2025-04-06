@@ -3,39 +3,27 @@ version: 0.2
 phases:
   install:
     runtime-versions:
-      python: 3.9
+      python: 3.8
     commands:
-      - echo Installing system dependencies...
-      - apt-get update -y
-      - apt-get install -y gcc libssl-dev libbz2-dev libffi-dev zlib1g-dev wget unzip
-      - echo Installing CodeQL...
-      - wget https://github.com/github/codeql-cli-binaries/releases/download/v2.15.4/codeql-linux64.zip
-      - unzip codeql-linux64.zip
-      - export PATH=$PATH:$PWD/codeql
-      - codeql --version
-      - wget https://github.com/github/codeql/archive/refs/heads/main.zip -O codeql-queries.zip
-      - unzip codeql-queries.zip
-      - mv codeql-main/python/ql/src python-queries
-
-  pre_build:
-    commands:
-      - echo Installing Python dependencies...
-      - python -m pip install --upgrade pip
+      - echo Installing dependencies...
       - pip install -r requirements.txt
-
+      - pip install gunicorn
   build:
     commands:
-      - echo Skipping tests as they are not set up yet...
-      - echo Running CodeQL analysis...
-      - mkdir -p codeql-db
-      - codeql database create codeql-db --language=python --source-root=. || true
-      - codeql database analyze codeql-db python-queries --format=sarif-latest --output=codeql-results.sarif || true
+      - echo Build started on `date`
+      - echo Installing dependencies...
+      - pip install -r requirements.txt
+      - pip install gunicorn
+  post_build:
+    commands:
+      - echo Build completed on `date`
+      - echo Creating Elastic Beanstalk application bundle...
+      - zip -r application.zip . -x "*.git*" "*.pyc" "__pycache__/*" "venv/*" "*.pem"
 
 artifacts:
   files:
-    - '**/*'
-    - 'codeql-results.sarif'
-  name: ecommerce-app-$(date +%Y-%m-%d-%H-%M-%S)
+    - application.zip
+  name: BuildArtifact
 
 cache:
   paths:
