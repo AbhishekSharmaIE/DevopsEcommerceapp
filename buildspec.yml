@@ -14,11 +14,6 @@ phases:
       - echo Installing dependencies...
       - pip install -r requirements.txt
       - pip install gunicorn
-  post_build:
-    commands:
-      - echo Deploying to EC2...
-      - chmod +x deploy.sh
-      - ./deploy.sh
 
 artifacts:
   files:

@@ -36,10 +36,10 @@
                 ]
             },
             {
-                "name": "BuildAndDeploy",
+                "name": "Build",
                 "actions": [
                     {
-                        "name": "BuildAndDeploy",
+                        "name": "Build",
                         "actionTypeId": {
                             "category": "Build",
                             "owner": "AWS",
@@ -50,7 +50,11 @@
                         "configuration": {
                             "ProjectName": "ecommerce-app-build"
                         },
-                        "outputArtifacts": [],
+                        "outputArtifacts": [
+                            {
+                                "name": "BuildArtifact"
+                            }
+                        ],
                         "inputArtifacts": [
                             {
                                 "name": "SourceArtifact"
@@ -58,6 +62,32 @@
                         ],
                         "region": "eu-west-1",
                         "namespace": "BuildVariables"
+                    }
+                ]
+            },
+            {
+                "name": "Deploy",
+                "actions": [
+                    {
+                        "name": "Deploy",
+                        "actionTypeId": {
+                            "category": "Build",
+                            "owner": "AWS",
+                            "provider": "CodeBuild",
+                            "version": "1"
+                        },
+                        "runOrder": 1,
+                        "configuration": {
+                            "ProjectName": "ecommerce-app-deploy"
+                        },
+                        "outputArtifacts": [],
+                        "inputArtifacts": [
+                            {
+                                "name": "BuildArtifact"
+                            }
+                        ],
+                        "region": "eu-west-1",
+                        "namespace": "DeployVariables"
                     }
                 ]
             }
