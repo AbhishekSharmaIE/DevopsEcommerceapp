@@ -3,11 +3,10 @@ version: 0.2
 phases:
   install:
     runtime-versions:
-      python: 3.8
+      python: 3.9
     commands:
-      - echo Installing dependencies...
+      - pip install awscli
       - pip install -r requirements.txt
-      - pip install gunicorn
   build:
     commands:
       - echo Build started on `date`
@@ -16,14 +15,14 @@ phases:
       - pip install gunicorn
   post_build:
     commands:
-      - echo Build completed on `date`
-      - echo Creating Elastic Beanstalk application bundle...
-      - zip -r application.zip . -x "*.git*" "*.pyc" "__pycache__/*" "venv/*" "*.pem"
+      - echo Deploying to EC2...
+      - chmod +x deploy.sh
+      - ./deploy.sh
 
 artifacts:
   files:
-    - application.zip
-  name: BuildArtifact
+    - '**/*'
+  name: ecommerce-app-$(date +%Y-%m-%d-%H-%M-%S)
 
 cache:
   paths:
