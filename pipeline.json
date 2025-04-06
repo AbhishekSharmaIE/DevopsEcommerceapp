@@ -2,10 +2,6 @@
     "pipeline": {
         "name": "ecommerce-app-pipeline",
         "roleArn": "arn:aws:iam::052188048367:role/CodePipelineServiceRole-ecommerce-app",
-        "artifactStore": {
-            "type": "S3",
-            "location": "ecommerce-app-build-artifacts"
-        },
         "stages": [
             {
                 "name": "Source",
@@ -36,10 +32,10 @@
                 ]
             },
             {
-                "name": "Build",
+                "name": "BuildAndDeploy",
                 "actions": [
                     {
-                        "name": "Build",
+                        "name": "BuildAndDeploy",
                         "actionTypeId": {
                             "category": "Build",
                             "owner": "AWS",
@@ -50,11 +46,7 @@
                         "configuration": {
                             "ProjectName": "ecommerce-app-build"
                         },
-                        "outputArtifacts": [
-                            {
-                                "name": "BuildArtifact"
-                            }
-                        ],
+                        "outputArtifacts": [],
                         "inputArtifacts": [
                             {
                                 "name": "SourceArtifact"
@@ -62,33 +54,6 @@
                         ],
                         "region": "eu-west-1",
                         "namespace": "BuildVariables"
-                    }
-                ]
-            },
-            {
-                "name": "Deploy",
-                "actions": [
-                    {
-                        "name": "Deploy",
-                        "actionTypeId": {
-                            "category": "Build",
-                            "owner": "AWS",
-                            "provider": "CodeBuild",
-                            "version": "1"
-                        },
-                        "runOrder": 1,
-                        "configuration": {
-                            "ProjectName": "ecommerce-app-build",
-                            "PrimarySource": "BuildArtifact"
-                        },
-                        "outputArtifacts": [],
-                        "inputArtifacts": [
-                            {
-                                "name": "BuildArtifact"
-                            }
-                        ],
-                        "region": "eu-west-1",
-                        "namespace": "DeployVariables"
                     }
                 ]
             }
