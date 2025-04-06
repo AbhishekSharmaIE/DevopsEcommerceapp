@@ -23,12 +23,6 @@ echo "Installing Python dependencies..."
 pip install --upgrade pip
 pip install -r requirements.txt
 
-echo "Setting up frontend..."
-cd frontend
-npm install
-npm run build
-cd ..
-
 echo "Setting up systemd service..."
 sudo tee /etc/systemd/system/ecommerce-app.service << EOF
 [Unit]
