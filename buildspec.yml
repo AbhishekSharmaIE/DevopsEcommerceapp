@@ -1,0 +1,40 @@
+version: 0.2
+
+phases:
+  install:
+    runtime-versions:
+      python: 3.9
+    commands:
+      - pip install --upgrade pip
+      - pip install -r requirements.txt
+      - pip install pytest pytest-cov
+      - wget https://github.com/github/codeql-cli-binaries/releases/download/v2.14.5/codeql-linux64.zip
+      - unzip codeql-linux64.zip
+      - export PATH=$PATH:./codeql/
+
+  pre_build:
+    commands:
+      - echo "Running tests and code coverage"
+      - pytest --cov=./ --cov-report=xml
+      - echo "Initializing CodeQL database"
+      - codeql database create codeql-db --language=python --source-root=.
+
+  build:
+    commands:
+      - echo "Running CodeQL analysis"
+      - codeql database analyze codeql-db --format=sarif-latest --output=codeql-results.sarif
+      - echo "Building application"
+      - pip install gunicorn
+
+  post_build:
+    commands:
+      - echo "Preparing deployment package"
+      - zip -r deployment.zip . -x "*.git*" "venv/*" "codeql-db/*" "codeql-results.sarif"
+
+artifacts:
+  files:
+    - deployment.zip
+    - appspec.yml
+    - scripts/**/*
+    - codeql-results.sarif
+  discard-paths: no 

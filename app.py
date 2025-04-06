@@ -16,6 +16,19 @@ login_manager = LoginManager(app)
 login_manager.login_view = 'login'
 login_manager.login_message_category = 'info'
 
+class User(UserMixin):
+    def __init__(self, id, username, email, password):
+        self.id = id
+        self.username = username
+        self.email = email
+        self.password = password
+        self.orders = []
+        self.addresses = []
+        self.wishlist = []
+
+    def get_id(self):
+        return str(self.id)
+
 # Load products from local JSON file
 def load_products():
     try:
@@ -88,19 +101,6 @@ users = load_users()
 orders = {}
 addresses = {}
 wishlist = {}
-
-class User(UserMixin):
-    def __init__(self, id, username, email, password):
-        self.id = id
-        self.username = username
-        self.email = email
-        self.password = password
-        self.orders = []
-        self.addresses = []
-        self.wishlist = []
-
-    def get_id(self):
-        return str(self.id)
 
 class RegistrationForm(FlaskForm):
     username = StringField('Username', validators=[DataRequired(), Length(min=4, max=20)])
