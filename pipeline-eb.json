@@ -78,7 +78,7 @@
                     "runOrder": 1,
                     "configuration": {
                         "ApplicationName": "ecommerce-app-eb",
-                        "EnvironmentName": "ecommerce-app-env"
+                        "EnvironmentName": "ecommerce-app-env-2"
                     },
                     "outputArtifacts": [],
                     "inputArtifacts": [
