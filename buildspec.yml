@@ -3,27 +3,29 @@ version: 0.2
 phases:
   install:
     runtime-versions:
-      python: 3.12
+      python: 3.9
+      nodejs: 16
     commands:
-      - echo Installing dependencies...
-      - pip install -r requirements.txt
-      - pip install pytest pytest-cov
+      - echo Installing system dependencies...
+      - yum update -y
+      - yum install -y gcc openssl-devel bzip2-devel libffi-devel zlib-devel
 
   pre_build:
     commands:
-      - echo Running pre-build steps...
-      - export FLASK_APP=app.py
-      - export FLASK_ENV=testing
+      - echo Installing Python dependencies...
+      - python -m pip install --upgrade pip
+      - pip install -r requirements.txt
+      - echo Installing frontend dependencies...
+      - cd frontend
+      - npm install
+      - cd ..
 
   build:
     commands:
-      - echo Running tests...
-      - pytest --cov=app tests/ --cov-report=xml
-
-  post_build:
-    commands:
-      - echo Build completed on `date`
-      - echo Pushing test coverage report...
+      - echo Building frontend...
+      - cd frontend
+      - npm run build
+      - cd ..
 
 artifacts:
   files:

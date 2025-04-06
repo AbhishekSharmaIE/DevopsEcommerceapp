@@ -3,24 +3,39 @@ os: linux
 files:
   - source: /
     destination: /var/www/ecommerce
+permissions:
+  - object: /var/www/ecommerce
+    pattern: "**"
+    owner: ec2-user
+    group: ec2-user
+    mode: 644
+    type:
+      - file
+  - object: /var/www/ecommerce
+    pattern: "**"
+    owner: ec2-user
+    group: ec2-user
+    mode: 755
+    type:
+      - directory
 hooks:
+  ApplicationStop:
+    - location: scripts/deploy.sh
+      timeout: 300
+      runas: root
   BeforeInstall:
-    - location: scripts/install_dependencies.sh
+    - location: scripts/deploy.sh
       timeout: 300
       runas: root
   AfterInstall:
-    - location: scripts/start_server.sh
+    - location: scripts/deploy.sh
       timeout: 300
       runas: root
   ApplicationStart:
-    - location: scripts/start_server.sh
-      timeout: 300
-      runas: root
-  ApplicationStop:
-    - location: scripts/stop_server.sh
+    - location: scripts/deploy.sh
       timeout: 300
       runas: root
   ValidateService:
-    - location: scripts/validate_service.sh
+    - location: scripts/deploy.sh
       timeout: 300
       runas: root 

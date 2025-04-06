@@ -24,4 +24,8 @@ EOF
 
 ln -sf /etc/nginx/sites-available/ecommerce /etc/nginx/sites-enabled/
 nginx -t
-systemctl restart nginx 
+systemctl restart nginx
+
+# Start the Node.js application using PM2
+cd /var/www/html/
+pm2 start app.js --name "ecommerce-app" 
