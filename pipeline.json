@@ -2,13 +2,10 @@
     "pipeline": {
         "name": "ecommerce-app-pipeline",
         "roleArn": "arn:aws:iam::052188048367:role/CodePipelineServiceRole-ecommerce-app",
-        "artifactStores": [
-            {
-                "region": "eu-west-1",
-                "type": "S3",
-                "location": "ecommerce-app-pipeline-artifacts"
-            }
-        ],
+        "artifactStore": {
+            "type": "S3",
+            "location": "ecommerce-app-pipeline-artifacts"
+        },
         "stages": [
             {
                 "name": "Source",
