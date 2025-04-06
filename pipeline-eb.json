@@ -3,7 +3,7 @@
     "roleArn": "arn:aws:iam::052188048367:role/CodePipelineServiceRole-ecommerce-app",
     "artifactStore": {
         "type": "S3",
-        "location": "ecommerce-app-build-artifacts-eb"
+        "location": "ecommerce-app-build-artifacts-eb-eu"
     },
     "stages": [
         {
@@ -20,7 +20,7 @@
                     "runOrder": 1,
                     "configuration": {
                         "BranchName": "main",
-                        "ConnectionArn": "arn:aws:codestar-connections:us-east-1:052188048367:connection/199e7560-b982-417c-934c-e3f7210d3f9f",
+                        "ConnectionArn": "arn:aws:codestar-connections:eu-west-1:052188048367:connection/fe7ebacb-e62e-4810-adfd-98ded3e1fa16",
                         "FullRepositoryId": "AbhishekSharmaIE/DevopsEcommerceapp"
                     },
                     "outputArtifacts": [
@@ -29,7 +29,7 @@
                         }
                     ],
                     "inputArtifacts": [],
-                    "region": "us-east-1",
+                    "region": "eu-west-1",
                     "namespace": "SourceVariables"
                 }
             ]
@@ -59,7 +59,7 @@
                             "name": "SourceArtifact"
                         }
                     ],
-                    "region": "us-east-1",
+                    "region": "eu-west-1",
                     "namespace": "BuildVariables"
                 }
             ]
@@ -86,7 +86,7 @@
                             "name": "BuildArtifact"
                         }
                     ],
-                    "region": "us-east-1",
+                    "region": "eu-west-1",
                     "namespace": "DeployVariables"
                 }
             ]
