@@ -13,7 +13,7 @@ phases:
     commands:
       - echo Deploying to EC2...
       - chmod +x deploy.sh
-      - export EC2_INSTANCE_ID="i-0123456789abcdef0"  # Replace with your actual instance ID
+      - export EC2_INSTANCE_ID="i-01203af55713a9f83"
       - ./deploy.sh
 
 artifacts:

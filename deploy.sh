@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Get the EC2 instance ID from environment variable or use the default one
-EC2_INSTANCE_ID=${EC2_INSTANCE_ID:-"i-0123456789abcdef0"}  # Replace with your actual instance ID
+EC2_INSTANCE_ID=${EC2_INSTANCE_ID:-"i-01203af55713a9f83"}
 
 # Create a temporary directory for the deployment
 DEPLOY_DIR="/tmp/deploy-$(date +%s)"
