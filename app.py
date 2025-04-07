@@ -1,3 +1,5 @@
+# Ecommerce Application - CI/CD Pipeline Test
+# This is a test comment to verify automatic deployment
 from flask import Flask, render_template, request, redirect, url_for, flash, session
 from flask_bcrypt import Bcrypt
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
