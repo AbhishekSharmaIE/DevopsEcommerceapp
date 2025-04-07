@@ -246,5 +246,13 @@
     "description": "iphone 16 pro max",
     "category": "electronics",
     "image": "/static/images/products/21.jpg"
+  },
+  {
+    "id": 22,
+    "title": "Apple MacBook Pro 16-inch",
+    "price": 1600.0,
+    "description": "Powerful 16-inch MacBook Pro with M2 Pro chip, 16GB unified memory, and 512GB SSD storage. Perfect for professionals and creatives.",
+    "category": "electronics",
+    "image": "/static/images/products/22.jpg"
   }
 ]
