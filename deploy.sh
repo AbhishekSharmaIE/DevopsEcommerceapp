@@ -8,7 +8,7 @@ DEPLOY_DIR="/tmp/deploy-$(date +%s)"
 mkdir -p $DEPLOY_DIR
 
 # Copy the application files to the temporary directory
-cp -r app.py requirements.txt static templates $DEPLOY_DIR/
+cp -r app.py requirements.txt static templates data $DEPLOY_DIR/
 
 # Create a deployment archive
 cd $DEPLOY_DIR
