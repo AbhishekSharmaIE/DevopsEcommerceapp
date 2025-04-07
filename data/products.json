@@ -254,5 +254,13 @@
     "description": "Powerful 16-inch MacBook Pro with M2 Pro chip, 16GB unified memory, and 512GB SSD storage. Perfect for professionals and creatives.",
     "category": "electronics",
     "image": "/static/images/products/22.jpg"
+  },
+  {
+    "id": 23,
+    "title": "New Product",
+    "price": 199.99,
+    "description": "tablet",
+    "category": "electronics",
+    "image": "/static/images/products/23.jpg"
   }
 ]
