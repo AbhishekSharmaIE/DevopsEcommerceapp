@@ -6,8 +6,11 @@ phases:
       python: 3.9
     commands:
       - echo "Installing dependencies..."
-      - pip install -r requirements.txt
+      - ls -la  # Debug: List files to verify requirements.txt exists
+      - pwd     # Debug: Print current directory
+      - pip install --upgrade pip
       - pip install awscli
+      - if [ -f "app/requirements.txt" ]; then pip install -r app/requirements.txt; elif [ -f "requirements.txt" ]; then pip install -r requirements.txt; else echo "requirements.txt not found" && exit 1; fi
 
   pre_build:
     commands:
@@ -16,14 +19,14 @@ phases:
   build:
     commands:
       - echo "Deploying application..."
-      - mkdir -p /var/www/html/ecommerce
-      - cp -r * /var/www/html/ecommerce/
+      - sudo mkdir -p /var/www/html/ecommerce
+      - sudo cp -r * /var/www/html/ecommerce/
       - cd /var/www/html/ecommerce
       - python3 -m venv venv
       - source venv/bin/activate
-      - pip install -r requirements.txt
-      - sudo systemctl restart nginx
-      - sudo systemctl restart gunicorn
+      - if [ -f "app/requirements.txt" ]; then pip install -r app/requirements.txt; elif [ -f "requirements.txt" ]; then pip install -r requirements.txt; else echo "requirements.txt not found" && exit 1; fi
+      - sudo systemctl restart nginx || echo "Failed to restart nginx"
+      - sudo systemctl restart gunicorn || echo "Failed to restart gunicorn"
 
   post_build:
     commands:
