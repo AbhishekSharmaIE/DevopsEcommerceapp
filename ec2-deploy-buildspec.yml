@@ -30,19 +30,17 @@ phases:
       - cd /tmp/deploy
       - pip install -r requirements.txt
       - echo "Setting up application directory..."
-      - sudo mkdir -p /var/www/html/ecommerce
-      - sudo cp -r * /var/www/html/ecommerce/
-      - sudo chown -R ubuntu:ubuntu /var/www/html/ecommerce
+      - mkdir -p /var/www/html/ecommerce
+      - cp -r * /var/www/html/ecommerce/
       - echo "Setting up virtual environment..."
-      - sudo -u ubuntu python3 -m venv /var/www/html/ecommerce/venv
-      - sudo -u ubuntu /var/www/html/ecommerce/venv/bin/pip install -r /var/www/html/ecommerce/requirements.txt
+      - python3 -m venv /var/www/html/ecommerce/venv
+      - /var/www/html/ecommerce/venv/bin/pip install -r /var/www/html/ecommerce/requirements.txt
 
   post_build:
     commands:
       - echo "Starting application..."
-      - sudo systemctl daemon-reload
-      - sudo systemctl enable gunicorn
-      - sudo systemctl start gunicorn
+      - cd /var/www/html/ecommerce
+      - nohup /var/www/html/ecommerce/venv/bin/gunicorn --bind 0.0.0.0:5000 app:app > gunicorn.log 2>&1 &
       - echo "Deployment completed successfully"
 
 artifacts:
