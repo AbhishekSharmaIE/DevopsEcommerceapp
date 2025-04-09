@@ -1,7 +1,7 @@
 {
     "pipeline": {
         "name": "ecommerce-app-pipeline",
-        "roleArn": "arn:aws:iam::052188048367:role/CodePipelineServiceRole-ecommerce-app",
+        "roleArn": "arn:aws:iam::052188048367:role/ecommerce-app-pipeline-role",
         "artifactStore": {
             "type": "S3",
             "location": "ecommerce-app-pipeline-artifacts"
@@ -21,17 +21,16 @@
                         "runOrder": 1,
                         "configuration": {
                             "BranchName": "main",
-                            "ConnectionArn": "arn:aws:codestar-connections:eu-west-1:052188048367:connection/7248a5fd-c7ea-4d62-84b8-fefe527aa928",
-                            "FullRepositoryId": "AbhishekSharmaIE/DevopsEcommerceapp"
+                            "ConnectionArn": "arn:aws:codestar-connections:eu-west-1:052188048367:connection/5c8c0c0c-0c0c-0c0c-0c0c-0c0c0c0c0c0c",
+                            "FullRepositoryId": "AbhishekSharmaIE/DevopsEcommerceapp",
+                            "OutputArtifactFormat": "CODE_ZIP"
                         },
                         "outputArtifacts": [
                             {
                                 "name": "SourceArtifact"
                             }
                         ],
-                        "inputArtifacts": [],
-                        "region": "eu-west-1",
-                        "namespace": "SourceVariables"
+                        "inputArtifacts": []
                     }
                 ]
             },
@@ -59,9 +58,7 @@
                             {
                                 "name": "SourceArtifact"
                             }
-                        ],
-                        "region": "eu-west-1",
-                        "namespace": "CodeQLVariables"
+                        ]
                     }
                 ]
             },
@@ -89,9 +86,7 @@
                             {
                                 "name": "SourceArtifact"
                             }
-                        ],
-                        "region": "eu-west-1",
-                        "namespace": "BuildVariables"
+                        ]
                     }
                 ]
             },
@@ -101,26 +96,26 @@
                     {
                         "name": "Deploy",
                         "actionTypeId": {
-                            "category": "Build",
+                            "category": "Deploy",
                             "owner": "AWS",
-                            "provider": "CodeBuild",
+                            "provider": "CodeDeploy",
                             "version": "1"
                         },
                         "runOrder": 1,
                         "configuration": {
-                            "ProjectName": "ecommerce-app-ec2-deploy"
+                            "ApplicationName": "ecommerce-app",
+                            "DeploymentGroupName": "ecommerce-app-deployment-group",
+                            "InstanceId": "i-00bb588bfd349593d"
                         },
-                        "outputArtifacts": [],
                         "inputArtifacts": [
                             {
                                 "name": "BuildArtifact"
                             }
-                        ],
-                        "region": "eu-west-1",
-                        "namespace": "DeployVariables"
+                        ]
                     }
                 ]
             }
-        ]
+        ],
+        "version": 1
     }
 } 

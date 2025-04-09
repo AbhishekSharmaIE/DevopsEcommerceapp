@@ -204,10 +204,23 @@ Resources:
       DeploymentStyle:
         DeploymentType: IN_PLACE
         DeploymentOption: WITHOUT_TRAFFIC_CONTROL
-      Ec2TagFilters:
-        - Key: Name
-          Value: ecommerce-app
-          Type: KEY_AND_VALUE
+      Ec2TagFilters: []
+      OnPremisesInstanceTagFilters: []
+      AutoRollbackConfiguration:
+        Enabled: true
+        Events:
+          - DEPLOYMENT_FAILURE
+          - DEPLOYMENT_STOP_ON_ALARM
+          - DEPLOYMENT_STOP_ON_REQUEST
+      Deployment:
+        Description: "Deploying ecommerce application"
+        IgnoreApplicationStopFailures: false
+        Revision:
+          RevisionType: S3
+          S3Location:
+            Bucket: !Ref S3Bucket
+            Key: ecommerce-app.zip
+            BundleType: zip
 
   CodeDeployRole:
     Type: AWS::IAM::Role
