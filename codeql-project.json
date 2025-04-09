@@ -1,9 +1,8 @@
 {
     "name": "ecommerce-app-codeql",
-    "description": "CodeQL static analysis for Ecommerce App",
+    "description": "CodeQL security analysis for ecommerce app",
     "source": {
-        "type": "CODEPIPELINE",
-        "buildspec": "codeql-buildspec.yml"
+        "type": "CODEPIPELINE"
     },
     "artifacts": {
         "type": "CODEPIPELINE"
@@ -14,5 +13,5 @@
         "computeType": "BUILD_GENERAL1_SMALL",
         "privilegedMode": true
     },
-    "serviceRole": "arn:aws:iam::052188048367:role/CodeBuildServiceRole-ecommerce-app-deploy"
+    "serviceRole": "arn:aws:iam::052188048367:role/CodeBuildServiceRole-ecommerce-app"
 } 

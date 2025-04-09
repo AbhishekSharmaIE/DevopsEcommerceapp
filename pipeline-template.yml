@@ -96,48 +96,65 @@ Resources:
       Stages:
         - Name: Source
           Actions:
-            - Name: GitHub_Source
+            - Name: Source
               ActionTypeId:
                 Category: Source
-                Owner: ThirdParty
+                Owner: AWS
+                Provider: CodeStarSourceConnection
                 Version: 1
-                Provider: GitHub
               Configuration:
-                Owner: !Ref GitHubOwner
-                Repo: !Ref GitHubRepo
-                Branch: !Ref GitHubBranch
-                OAuthToken: !Ref GitHubToken
+                BranchName: !Ref GitHubBranch
+                ConnectionArn: arn:aws:codestar-connections:eu-west-1:052188048367:connection/7248a5fd-c7ea-4d62-84b8-fefe527aa928
+                FullRepositoryId: !Ref GitHubOwner/!Ref GitHubRepo
               OutputArtifacts:
-                - Name: SourceOutput
+                - Name: SourceArtifact
+              InputArtifacts: []
+              RunOrder: 1
+
+        - Name: CodeQL
+          Actions:
+            - Name: CodeQL
+              ActionTypeId:
+                Category: Build
+                Owner: AWS
+                Provider: CodeBuild
+                Version: 1
+              Configuration:
+                ProjectName: ecommerce-app-codeql
+              OutputArtifacts:
+                - Name: CodeQLArtifact
+              InputArtifacts:
+                - Name: SourceArtifact
               RunOrder: 1
 
         - Name: Build
           Actions:
-            - Name: CodeBuild
+            - Name: Build
               ActionTypeId:
                 Category: Build
                 Owner: AWS
-                Version: 1
                 Provider: CodeBuild
+                Version: 1
               Configuration:
                 ProjectName: !Ref CodeBuildProject
-              InputArtifacts:
-                - Name: SourceOutput
               OutputArtifacts:
-                - Name: BuildOutput
+                - Name: BuildArtifact
+              InputArtifacts:
+                - Name: CodeQLArtifact
               RunOrder: 1
 
         - Name: Deploy
           Actions:
-            - Name: CodeDeploy
+            - Name: Deploy
               ActionTypeId:
                 Category: Deploy
                 Owner: AWS
-                Version: 1
                 Provider: CodeDeploy
+                Version: 1
               Configuration:
                 ApplicationName: !Ref CodeDeployApplication
                 DeploymentGroupName: !Ref CodeDeployDeploymentGroup
+              OutputArtifacts: []
               InputArtifacts:
-                - Name: BuildOutput
+                - Name: BuildArtifact
               RunOrder: 1 
