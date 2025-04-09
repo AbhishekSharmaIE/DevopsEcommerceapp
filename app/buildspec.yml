@@ -1,0 +1,35 @@
+version: 0.2
+
+phases:
+  install:
+    runtime-versions:
+      python: 3.9
+    commands:
+      - echo "Installing dependencies..."
+      - pip install -r requirements.txt
+
+  build:
+    commands:
+      - echo "Building application..."
+      - python -m compileall .
+      - echo "Build completed"
+
+  post_build:
+    commands:
+      - echo "Creating deployment package..."
+      - mkdir -p deploy
+      - cp -r app/* deploy/
+      - cp requirements.txt deploy/
+      - cp Procfile deploy/
+      - cp nginx.conf deploy/
+      - cp -r scripts deploy/
+      - cp appspec.yml deploy/
+      - cd deploy && zip -r ../ecommerce-app.zip . -x "*.git*" "*.pyc" "*.pyo" "*.pyd" "*.so" "*.egg" "*.egg-info" "__pycache__" "*.swp" "*.swo" "*.bak" "*.tmp" "*.log" "*.pid" "*.pid.lock" "*.lock" "*.DS_Store" "*.idea" "*.vscode" "*.env" "*.venv" "venv/*" "node_modules/*" "*.zip"
+      - echo "Deployment package created"
+
+artifacts:
+  files:
+    - 'ecommerce-app.zip'
+    - 'appspec.yml'
+    - 'deploy-buildspec.yml'
+  name: BuildArtifact 
