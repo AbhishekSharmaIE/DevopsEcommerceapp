@@ -262,5 +262,13 @@
     "description": "tablet",
     "category": "electronics",
     "image": "/static/images/products/23.jpg"
+  },
+  {
+    "id": 24,
+    "title": "Victor Accent Chair Natural Herringbone",
+    "price": 777.99,
+    "description": "The Victor Chair showcases a fine herringbone fabric with stunning solid oak spindle back detail. Featuring a fixed foam inner seat and loose fibre filled cushion back combined with wooden armrests and legs add a touch of warmth and bring nature into your room. It would sit perfectly in a living room, kitchen or bedroom and may just become your favourite relaxing spot. Available in various colours.",
+    "category": "electronics",
+    "image": "/static/images/products/24.jpg"
   }
 ]
