@@ -9,14 +9,22 @@ phases:
       - pip install -r requirements.txt
       - pip install awscli
 
+  pre_build:
+    commands:
+      - echo "Starting deployment to EC2..."
+
   build:
     commands:
-      - echo "Deploying to EC2 instance..."
-      - mkdir -p ~/.ssh
-      - aws ssm get-parameter --name "/ecommerce-app/ssh-key" --with-decryption --query Parameter.Value --output text > ~/.ssh/ecommerce-app-key-eu.pem
-      - chmod 400 ~/.ssh/ecommerce-app-key-eu.pem
-      - ssh -o StrictHostKeyChecking=no -i ~/.ssh/ecommerce-app-key-eu.pem ubuntu@ec2-108-129-203-192.eu-west-1.compute.amazonaws.com "mkdir -p /home/ubuntu/app"
-      - scp -o StrictHostKeyChecking=no -i ~/.ssh/ecommerce-app-key-eu.pem -r * ubuntu@ec2-108-129-203-192.eu-west-1.compute.amazonaws.com:/home/ubuntu/app/
-      - ssh -o StrictHostKeyChecking=no -i ~/.ssh/ecommerce-app-key-eu.pem ubuntu@ec2-108-129-203-192.eu-west-1.compute.amazonaws.com "cd /home/ubuntu/app && pip install -r requirements.txt"
-      - ssh -o StrictHostKeyChecking=no -i ~/.ssh/ecommerce-app-key-eu.pem ubuntu@ec2-108-129-203-192.eu-west-1.compute.amazonaws.com "cd /home/ubuntu/app && sudo systemctl restart gunicorn"
-      - echo "Deployment completed successfully" 
+      - echo "Deploying application..."
+      - mkdir -p /var/www/html/ecommerce
+      - cp -r * /var/www/html/ecommerce/
+      - cd /var/www/html/ecommerce
+      - python3 -m venv venv
+      - source venv/bin/activate
+      - pip install -r requirements.txt
+      - sudo systemctl restart nginx
+      - sudo systemctl restart gunicorn
+
+  post_build:
+    commands:
+      - echo "Application deployment completed" 
