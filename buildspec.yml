@@ -1,21 +1,29 @@
 version: 0.2
+
 phases:
   install:
     runtime-versions:
-      python: 3.8
+      python: 3.9
+    commands:
+      - pip install awscli
   pre_build:
     commands:
-      - echo Installing dependencies...
-      - python -m pip install --upgrade pip
-      - pip install -r requirements.txt
+      - aws configure set region eu-west-1
   build:
     commands:
-      - echo Build started...
-      - python -m pytest tests/ || true
+      - echo Build started on `date`
+      - cp -r app/static static
+      - cp -r app/templates templates
+      - cp -r app/data data
+      - cp app/*.py .
+      - cp requirements.txt .
+      - cp Procfile .
   post_build:
     commands:
-      - echo Build completed
-      - chmod +x scripts/*.sh
+      - echo Build completed on `date`
+      - aws deploy push --application-name ecommerce-app --s3-location s3://ecommerce-app-deployment/ecommerce-app-deployment.zip --source .
+      - aws deploy create-deployment --application-name ecommerce-app --deployment-config-name CodeDeployDefault.OneAtATime --deployment-group-name ecommerce-app-deployment-group --s3-location bucket=ecommerce-app-deployment,key=ecommerce-app-deployment.zip,bundleType=zip
+
 artifacts:
   files:
     - '**/*'

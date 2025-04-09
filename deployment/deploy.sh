@@ -1,17 +1,20 @@
 #!/bin/bash
 
 # Get the EC2 instance IP from environment variable
-EC2_INSTANCE_IP=${EC2_INSTANCE_IP:-3.250.5.252}
+EC2_INSTANCE_HOST=${EC2_INSTANCE_HOST:-ec2-108-129-203-192.eu-west-1.compute.amazonaws.com}
 
 # Create a temporary directory for the deployment
 DEPLOY_DIR="/tmp/deploy-$(date +%s)"
 mkdir -p $DEPLOY_DIR
 
 # Copy the application files to the temporary directory
-cp -r app requirements.txt static templates data $DEPLOY_DIR/
+cp -r ../app/* $DEPLOY_DIR/
+cp ../requirements.txt $DEPLOY_DIR/
+cp -r ../static ../templates ../data $DEPLOY_DIR/
+cp ../Procfile $DEPLOY_DIR/
 
 # Use SSH with key file
-ssh -i ecommerce-key.pem -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null ubuntu@$EC2_INSTANCE_IP << 'EOF'
+ssh -i ../ecommerce-app-key-eu.pem -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null ubuntu@$EC2_INSTANCE_HOST << 'EOF'
     # Stop the current application
     pkill -f gunicorn || true
 
@@ -22,13 +25,17 @@ ssh -i ecommerce-key.pem -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/
 
     # Create a new deployment directory
     mkdir -p /home/ubuntu/app
+
+    # Install required packages
+    sudo apt-get update
+    sudo apt-get install -y python3-venv python3-pip
 EOF
 
 # Copy the application files directly to the EC2 instance
-scp -i ecommerce-key.pem -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -r $DEPLOY_DIR/* ubuntu@$EC2_INSTANCE_IP:/home/ubuntu/app/
+scp -i ../ecommerce-app-key-eu.pem -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -r $DEPLOY_DIR/* ubuntu@$EC2_INSTANCE_HOST:/home/ubuntu/app/
 
 # SSH into the instance to set up the environment and start the application
-ssh -i ecommerce-key.pem -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null ubuntu@$EC2_INSTANCE_IP << 'EOF'
+ssh -i ../ecommerce-app-key-eu.pem -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null ubuntu@$EC2_INSTANCE_HOST << 'EOF'
     cd /home/ubuntu/app
 
     # Set up Python virtual environment
