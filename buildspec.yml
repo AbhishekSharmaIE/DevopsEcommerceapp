@@ -18,8 +18,5 @@ phases:
       - chmod +x scripts/*.sh
 artifacts:
   files:
-    - app/**/*
-    - requirements.txt
-    - scripts/**/*
-    - appspec.yml
+    - '**/*'
   discard-paths: no 
