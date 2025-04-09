@@ -6,12 +6,12 @@ phases:
       python: 3.9
     commands:
       - echo "Installing dependencies..."
-      - pip install -r requirements.txt
+      - pip install -r app/requirements.txt
 
   build:
     commands:
       - echo "Building application..."
-      - python -m compileall .
+      - python -m compileall app/
       - echo "Build completed"
 
   post_build:
@@ -19,7 +19,7 @@ phases:
       - echo "Creating deployment package..."
       - mkdir -p deploy
       - cp -r app/* deploy/
-      - cp requirements.txt deploy/
+      - cp app/requirements.txt deploy/
       - cp Procfile deploy/
       - cp nginx.conf deploy/
       - cp -r scripts deploy/
