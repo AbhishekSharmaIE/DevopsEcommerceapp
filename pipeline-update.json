@@ -108,8 +108,7 @@
                         },
                         "runOrder": 1,
                         "configuration": {
-                            "ProjectName": "ecommerce-app-ec2-deploy",
-                            "EnvironmentVariables": "[{\"name\":\"SSH_KEY\",\"value\":\"$(cat ecommerce-app-key-eu.pem)\",\"type\":\"PLAINTEXT\"}]"
+                            "ProjectName": "ecommerce-app-ec2-deploy"
                         },
                         "outputArtifacts": [],
                         "inputArtifacts": [
