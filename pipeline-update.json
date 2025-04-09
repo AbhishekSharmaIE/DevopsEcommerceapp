@@ -78,7 +78,7 @@
                         },
                         "runOrder": 1,
                         "configuration": {
-                            "ProjectName": "ecommerce-app-build"
+                            "ProjectName": "ecommerce-app-build-new"
                         },
                         "outputArtifacts": [
                             {
@@ -87,7 +87,7 @@
                         ],
                         "inputArtifacts": [
                             {
-                                "name": "CodeQLArtifact"
+                                "name": "SourceArtifact"
                             }
                         ],
                         "region": "eu-west-1",
@@ -101,16 +101,15 @@
                     {
                         "name": "Deploy",
                         "actionTypeId": {
-                            "category": "Deploy",
+                            "category": "Build",
                             "owner": "AWS",
-                            "provider": "CodeDeploy",
+                            "provider": "CodeBuild",
                             "version": "1"
                         },
                         "runOrder": 1,
                         "configuration": {
-                            "ApplicationName": "ecommerce-app",
-                            "DeploymentGroupName": "ecommerce-app-deployment-group",
-                            "BucketName": "ecommerce-app-pipeline-artifacts"
+                            "ProjectName": "ecommerce-app-ec2-deploy",
+                            "EnvironmentVariables": "[{\"name\":\"SSH_KEY\",\"value\":\"$(cat ecommerce-app-key-eu.pem)\",\"type\":\"PLAINTEXT\"}]"
                         },
                         "outputArtifacts": [],
                         "inputArtifacts": [

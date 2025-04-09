@@ -1,0 +1,21 @@
+version: 0.2
+
+phases:
+  install:
+    runtime-versions:
+      python: 3.9
+    commands:
+      - echo "Installing dependencies..."
+      - pip install -r requirements.txt
+
+  build:
+    commands:
+      - echo "Deploying to EC2 instance..."
+      - mkdir -p ~/.ssh
+      - echo "$SSH_KEY" > ~/.ssh/ecommerce-app-key-eu.pem
+      - chmod 400 ~/.ssh/ecommerce-app-key-eu.pem
+      - ssh -o StrictHostKeyChecking=no -i ~/.ssh/ecommerce-app-key-eu.pem ubuntu@ec2-108-129-203-192.eu-west-1.compute.amazonaws.com "mkdir -p /home/ubuntu/app"
+      - scp -o StrictHostKeyChecking=no -i ~/.ssh/ecommerce-app-key-eu.pem -r * ubuntu@ec2-108-129-203-192.eu-west-1.compute.amazonaws.com:/home/ubuntu/app/
+      - ssh -o StrictHostKeyChecking=no -i ~/.ssh/ecommerce-app-key-eu.pem ubuntu@ec2-108-129-203-192.eu-west-1.compute.amazonaws.com "cd /home/ubuntu/app && pip install -r requirements.txt"
+      - ssh -o StrictHostKeyChecking=no -i ~/.ssh/ecommerce-app-key-eu.pem ubuntu@ec2-108-129-203-192.eu-west-1.compute.amazonaws.com "cd /home/ubuntu/app && sudo systemctl restart gunicorn"
+      - echo "Deployment completed successfully" 
