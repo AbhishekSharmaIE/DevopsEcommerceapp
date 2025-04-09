@@ -17,8 +17,8 @@ phases:
   post_build:
     commands:
       - echo "Creating deployment package..."
-      - mkdir -p deploy
-      - cp -r app/* deploy/
+      - mkdir -p deploy/app
+      - cp -r app/* deploy/app/
       - cp app/requirements.txt deploy/
       - cp Procfile deploy/
       - cp nginx.conf deploy/

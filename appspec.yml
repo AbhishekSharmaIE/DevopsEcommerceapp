@@ -1,22 +1,22 @@
 version: 0.0
 os: linux
 files:
-  - source: /
-    destination: /home/ubuntu/app
+  - source: app/
+    destination: /var/www/html/ecommerce
 hooks:
   BeforeInstall:
-    - location: scripts/install_dependencies.sh
+    - location: scripts/before_install.sh
       timeout: 300
       runas: root
   AfterInstall:
-    - location: scripts/start_server.sh
+    - location: scripts/after_install.sh
       timeout: 300
-      runas: ubuntu
+      runas: root
   ApplicationStart:
-    - location: scripts/start_server.sh
+    - location: scripts/start_application.sh
       timeout: 300
-      runas: ubuntu
-  ApplicationStop:
-    - location: scripts/stop_server.sh
+      runas: root
+  ValidateService:
+    - location: scripts/validate_service.sh
       timeout: 300
-      runas: ubuntu 
+      runas: root 
