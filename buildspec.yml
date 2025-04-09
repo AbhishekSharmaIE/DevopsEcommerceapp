@@ -5,26 +5,23 @@ phases:
     runtime-versions:
       python: 3.9
     commands:
-      - pip install awscli
-  pre_build:
-    commands:
-      - aws configure set region eu-west-1
+      - pip install -r requirements.txt
+
   build:
     commands:
-      - echo Build started on `date`
-      - cp -r app/static static
-      - cp -r app/templates templates
-      - cp -r app/data data
-      - cp app/*.py .
-      - cp requirements.txt .
-      - cp Procfile .
+      - echo "Building application..."
+      - python -m compileall .
+      - echo "Build completed"
+
   post_build:
     commands:
-      - echo Build completed on `date`
-      - aws deploy push --application-name ecommerce-app --s3-location s3://ecommerce-app-deployment/ecommerce-app-deployment.zip --source .
-      - aws deploy create-deployment --application-name ecommerce-app --deployment-config-name CodeDeployDefault.OneAtATime --deployment-group-name ecommerce-app-deployment-group --s3-location bucket=ecommerce-app-deployment,key=ecommerce-app-deployment.zip,bundleType=zip
+      - echo "Creating deployment package..."
+      - zip -r ecommerce-app.zip . -x "*.git*" "*.pyc" "*.pyo" "*.pyd" "*.so" "*.egg" "*.egg-info" "__pycache__" "*.swp" "*.swo" "*.bak" "*.tmp" "*.log" "*.pid" "*.pid.lock" "*.lock" "*.DS_Store" "*.idea" "*.vscode" "*.env" "*.venv" "venv/*" "node_modules/*" "*.zip"
+      - echo "Deployment package created"
 
 artifacts:
   files:
-    - '**/*'
-  discard-paths: no 
+    - 'ecommerce-app.zip'
+    - 'appspec.yml'
+    - 'deploy-buildspec.yml'
+  name: BuildArtifact 

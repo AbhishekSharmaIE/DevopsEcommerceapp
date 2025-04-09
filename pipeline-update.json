@@ -109,7 +109,8 @@
                         "runOrder": 1,
                         "configuration": {
                             "ApplicationName": "ecommerce-app",
-                            "DeploymentGroupName": "ecommerce-app-deployment-group"
+                            "DeploymentGroupName": "ecommerce-app-deployment-group",
+                            "BucketName": "ecommerce-app-pipeline-artifacts"
                         },
                         "outputArtifacts": [],
                         "inputArtifacts": [

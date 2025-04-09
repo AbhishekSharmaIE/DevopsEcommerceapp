@@ -5,14 +5,18 @@ phases:
     runtime-versions:
       python: 3.9
     commands:
-      - echo "Running dummy CodeQL check..."
+      - wget https://github.com/github/codeql-cli-binaries/releases/download/v2.14.5/codeql-linux64.zip
+      - unzip codeql-linux64.zip
+      - export PATH=$PATH:$(pwd)/codeql
 
   build:
     commands:
-      - echo "CodeQL analysis skipped - dummy check passed"
-      - echo "Proceeding with build and deploy..."
+      - codeql database create codeql-db --language=python
+      - codeql database analyze codeql-db --format=sarif-latest --output=codeql-results.sarif
+      - echo "CodeQL analysis completed"
 
 artifacts:
   files:
     - '**/*'
+    - 'codeql-results.sarif'
   name: CodeQLArtifact 
