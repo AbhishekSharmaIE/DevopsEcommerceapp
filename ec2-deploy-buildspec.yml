@@ -14,48 +14,38 @@ phases:
       - find . -name requirements.txt
       - pip install --upgrade pip
       - pip install awscli
-      - if [ -f "requirements.txt" ]; then
-          echo "Found requirements.txt in root directory";
-          pip install -r requirements.txt;
-        elif [ -f "app/requirements.txt" ]; then
-          echo "Found requirements.txt in app directory";
-          pip install -r app/requirements.txt;
-        elif [ -f "deploy/requirements.txt" ]; then
-          echo "Found requirements.txt in deploy directory";
-          pip install -r deploy/requirements.txt;
-        else
-          echo "requirements.txt not found in any expected location";
-          exit 1;
-        fi
+      - pip install boto3
 
   pre_build:
     commands:
-      - echo "Starting deployment to EC2..."
-      - echo "Current directory structure:"
-      - ls -R
+      - echo "Preparing for deployment..."
+      - echo "Unzipping application package..."
+      - unzip -o ecommerce-app.zip -d /tmp/deploy
+      - echo "Contents of deployment package:"
+      - ls -la /tmp/deploy
 
   build:
     commands:
-      - echo "Deploying application..."
+      - echo "Installing application dependencies..."
+      - cd /tmp/deploy
+      - pip install -r requirements.txt
+      - echo "Setting up application directory..."
       - sudo mkdir -p /var/www/html/ecommerce
-      - sudo cp -r * /var/www/html/ecommerce/ || echo "Copy failed, checking directory contents:"
-      - ls -la /var/www/html/ecommerce/
-      - cd /var/www/html/ecommerce
-      - python3 -m venv venv
-      - source venv/bin/activate
-      - if [ -f "requirements.txt" ]; then
-          pip install -r requirements.txt;
-        elif [ -f "app/requirements.txt" ]; then
-          pip install -r app/requirements.txt;
-        else
-          echo "requirements.txt not found in deployment directory";
-          exit 1;
-        fi
-      - sudo systemctl restart nginx || echo "Failed to restart nginx"
-      - sudo systemctl restart gunicorn || echo "Failed to restart gunicorn"
+      - sudo cp -r * /var/www/html/ecommerce/
+      - sudo chown -R ubuntu:ubuntu /var/www/html/ecommerce
+      - echo "Setting up virtual environment..."
+      - sudo -u ubuntu python3 -m venv /var/www/html/ecommerce/venv
+      - sudo -u ubuntu /var/www/html/ecommerce/venv/bin/pip install -r /var/www/html/ecommerce/requirements.txt
 
   post_build:
     commands:
-      - echo "Application deployment completed"
-      - echo "Final directory structure:"
-      - ls -R /var/www/html/ecommerce/ 
+      - echo "Starting application..."
+      - sudo systemctl daemon-reload
+      - sudo systemctl enable gunicorn
+      - sudo systemctl start gunicorn
+      - echo "Deployment completed successfully"
+
+artifacts:
+  files:
+    - '**/*'
+  name: DeployArtifact 

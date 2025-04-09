@@ -1,20 +1,38 @@
 #!/bin/bash
-set -e
 
-# Start nginx
-systemctl start nginx
+# Stop any existing processes
+echo "Stopping existing processes..."
+sudo systemctl stop gunicorn || true
+pkill -f gunicorn || true
 
-# Enable and start gunicorn
-systemctl enable gunicorn
-systemctl start gunicorn
+# Set up the application directory
+APP_DIR="/var/www/html/ecommerce"
+cd $APP_DIR
 
-# Kill any existing Python processes
-pkill -f "python app.py" || true
+# Create and activate virtual environment if it doesn't exist
+if [ ! -d "venv" ]; then
+    echo "Creating virtual environment..."
+    python3 -m venv venv
+fi
 
-# Activate virtual environment and start the application
-cd /var/www/html/ecommerce
+# Activate virtual environment and install dependencies
+echo "Installing dependencies..."
 source venv/bin/activate
-nohup gunicorn --workers 3 --bind 0.0.0.0:5000 app:app > app.log 2>&1 &
+pip install -r requirements.txt
 
-# Save the PID
-echo $! > app.pid 
+# Start the application
+echo "Starting application..."
+nohup gunicorn --bind 0.0.0.0:5000 app:app > gunicorn.log 2>&1 &
+
+# Save the process ID
+echo $! > gunicorn.pid
+
+# Verify the application is running
+sleep 5
+if pgrep -f gunicorn > /dev/null; then
+    echo "Application started successfully"
+    exit 0
+else
+    echo "Failed to start application"
+    exit 1
+fi 
