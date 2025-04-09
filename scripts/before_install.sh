@@ -1,16 +1,54 @@
 #!/bin/bash
-set -e
 
-# Update system packages
-apt-get update
-apt-get install -y python3-pip python3-venv nginx
+# Stop any running application
+echo "Stopping existing application..."
+sudo systemctl stop gunicorn || true
+pkill -f gunicorn || true
 
 # Create application directory if it doesn't exist
-mkdir -p /var/www/html/ecommerce
+echo "Creating application directory..."
+sudo mkdir -p /var/www/html/ecommerce
+sudo chown -R ubuntu:ubuntu /var/www/html/ecommerce
 
-# Stop services if they're running
-systemctl stop nginx || true
-systemctl stop gunicorn || true
+# Install required system packages
+echo "Installing system dependencies..."
+sudo apt-get update
+sudo apt-get install -y python3 python3-pip python3-venv nginx
 
-# Clean up old deployment
-rm -rf /var/www/html/ecommerce/* 
+# Configure nginx
+echo "Configuring nginx..."
+sudo tee /etc/nginx/sites-available/ecommerce << EOF
+server {
+    listen 80;
+    server_name _;
+
+    location / {
+        proxy_pass http://127.0.0.1:5000;
+        proxy_set_header Host \$host;
+        proxy_set_header X-Real-IP \$remote_addr;
+    }
+}
+EOF
+
+sudo ln -sf /etc/nginx/sites-available/ecommerce /etc/nginx/sites-enabled/
+sudo rm -f /etc/nginx/sites-enabled/default
+sudo systemctl restart nginx
+
+# Create gunicorn service
+echo "Creating gunicorn service..."
+sudo tee /etc/systemd/system/gunicorn.service << EOF
+[Unit]
+Description=gunicorn daemon
+After=network.target
+
+[Service]
+User=ubuntu
+Group=ubuntu
+WorkingDirectory=/var/www/html/ecommerce
+ExecStart=/var/www/html/ecommerce/venv/bin/gunicorn --access-logfile - --workers 3 --bind 0.0.0.0:5000 app:app
+
+[Install]
+WantedBy=multi-user.target
+EOF
+
+sudo systemctl daemon-reload 

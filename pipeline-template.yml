@@ -1,21 +1,167 @@
 AWSTemplateFormatVersion: '2010-09-09'
-Description: 'AWS Pipeline for Ecommerce Application'
+Description: 'Pipeline for Ecommerce Application Deployment'
 
 Parameters:
   GitHubOwner:
     Type: String
-    Default: AbhishekSharmaIE
+    Default: 'AbhishekSharmaIE'
   GitHubRepo:
     Type: String
-    Default: DevopsEcommerceapp
+    Default: 'DevopsEcommerceapp'
   GitHubBranch:
     Type: String
-    Default: main
+    Default: 'main'
   GitHubToken:
     Type: String
     NoEcho: true
+  S3Bucket:
+    Type: String
+    Default: 'ecommerce-app-pipeline-artifacts'
 
 Resources:
+  Pipeline:
+    Type: AWS::CodePipeline::Pipeline
+    Properties:
+      Name: ecommerce-app-pipeline
+      RoleArn: !GetAtt PipelineRole.Arn
+      ArtifactStore:
+        Type: S3
+        Location: !Ref S3Bucket
+      Stages:
+        - Name: Source
+          Actions:
+            - Name: Source
+              ActionTypeId:
+                Category: Source
+                Owner: AWS
+                Version: 1
+                Provider: CodeStarSourceConnection
+              Configuration:
+                ConnectionArn: !Ref GitHubConnection
+                FullRepositoryId: !Sub '${GitHubOwner}/${GitHubRepo}'
+                BranchName: !Ref GitHubBranch
+              OutputArtifacts:
+                - Name: SourceArtifact
+              RunOrder: 1
+
+        - Name: CodeQL
+          Actions:
+            - Name: CodeQL
+              ActionTypeId:
+                Category: Build
+                Owner: AWS
+                Version: 1
+                Provider: CodeBuild
+              Configuration:
+                ProjectName: !Ref CodeQLProject
+              InputArtifacts:
+                - Name: SourceArtifact
+              OutputArtifacts:
+                - Name: CodeQLArtifact
+              RunOrder: 1
+
+        - Name: Build
+          Actions:
+            - Name: Build
+              ActionTypeId:
+                Category: Build
+                Owner: AWS
+                Version: 1
+                Provider: CodeBuild
+              Configuration:
+                ProjectName: !Ref BuildProject
+              InputArtifacts:
+                - Name: SourceArtifact
+              OutputArtifacts:
+                - Name: BuildArtifact
+              RunOrder: 1
+
+        - Name: Deploy
+          Actions:
+            - Name: Deploy
+              ActionTypeId:
+                Category: Deploy
+                Owner: AWS
+                Version: 1
+                Provider: CodeDeploy
+              Configuration:
+                ApplicationName: !Ref CodeDeployApplication
+                DeploymentGroupName: !Ref CodeDeployDeploymentGroup
+              InputArtifacts:
+                - Name: BuildArtifact
+              RunOrder: 1
+
+  PipelineRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: codepipeline.amazonaws.com
+            Action: sts:AssumeRole
+      Path: /
+      Policies:
+        - PolicyName: PipelinePolicy
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - s3:GetObject
+                  - s3:GetObjectVersion
+                  - s3:GetBucketVersioning
+                  - s3:PutObject
+                Resource:
+                  - !Sub 'arn:aws:s3:::${S3Bucket}/*'
+                  - !Sub 'arn:aws:s3:::${S3Bucket}'
+              - Effect: Allow
+                Action:
+                  - codebuild:BatchGetBuilds
+                  - codebuild:StartBuild
+                  - codedeploy:CreateDeployment
+                  - codedeploy:GetDeployment
+                  - codedeploy:GetDeploymentConfig
+                  - codedeploy:RegisterApplicationRevision
+                Resource: '*'
+
+  GitHubConnection:
+    Type: AWS::CodeStarConnections::Connection
+    Properties:
+      ConnectionName: github-connection
+      ProviderType: GitHub
+
+  CodeQLProject:
+    Type: AWS::CodeBuild::Project
+    Properties:
+      Name: ecommerce-app-codeql
+      ServiceRole: !GetAtt CodeBuildRole.Arn
+      Artifacts:
+        Type: CODEPIPELINE
+      Environment:
+        Type: LINUX_CONTAINER
+        Image: aws/codebuild/standard:5.0
+        ComputeType: BUILD_GENERAL1_SMALL
+      Source:
+        Type: CODEPIPELINE
+        BuildSpec: codeql-buildspec.yml
+
+  BuildProject:
+    Type: AWS::CodeBuild::Project
+    Properties:
+      Name: ecommerce-app-build-new
+      ServiceRole: !GetAtt CodeBuildRole.Arn
+      Artifacts:
+        Type: CODEPIPELINE
+      Environment:
+        Type: LINUX_CONTAINER
+        Image: aws/codebuild/standard:5.0
+        ComputeType: BUILD_GENERAL1_SMALL
+      Source:
+        Type: CODEPIPELINE
+        BuildSpec: buildspec.yml
+
   CodeBuildRole:
     Type: AWS::IAM::Role
     Properties:
@@ -26,9 +172,42 @@ Resources:
             Principal:
               Service: codebuild.amazonaws.com
             Action: sts:AssumeRole
-      ManagedPolicyArns:
-        - arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryFullAccess
-        - arn:aws:iam::aws:policy/CloudWatchLogsFullAccess
+      Path: /
+      Policies:
+        - PolicyName: CodeBuildPolicy
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - logs:CreateLogGroup
+                  - logs:CreateLogStream
+                  - logs:PutLogEvents
+                  - s3:GetObject
+                  - s3:GetObjectVersion
+                  - s3:PutObject
+                Resource: '*'
+
+  CodeDeployApplication:
+    Type: AWS::CodeDeploy::Application
+    Properties:
+      ApplicationName: ecommerce-app
+      ComputePlatform: Server
+
+  CodeDeployDeploymentGroup:
+    Type: AWS::CodeDeploy::DeploymentGroup
+    Properties:
+      ApplicationName: !Ref CodeDeployApplication
+      DeploymentGroupName: ecommerce-app-deployment-group
+      ServiceRoleArn: !GetAtt CodeDeployRole.Arn
+      DeploymentConfigName: CodeDeployDefault.AllAtOnce
+      DeploymentStyle:
+        DeploymentType: IN_PLACE
+        DeploymentOption: WITHOUT_TRAFFIC_CONTROL
+      Ec2TagFilters:
+        - Key: Name
+          Value: ecommerce-app
+          Type: KEY_AND_VALUE
 
   CodeDeployRole:
     Type: AWS::IAM::Role
@@ -40,121 +219,16 @@ Resources:
             Principal:
               Service: codedeploy.amazonaws.com
             Action: sts:AssumeRole
-      ManagedPolicyArns:
-        - arn:aws:iam::aws:policy/service-role/AWSCodeDeployRole
-
-  CodePipelineRole:
-    Type: AWS::IAM::Role
-    Properties:
-      AssumeRolePolicyDocument:
-        Version: '2012-10-17'
-        Statement:
-          - Effect: Allow
-            Principal:
-              Service: codepipeline.amazonaws.com
-            Action: sts:AssumeRole
-      ManagedPolicyArns:
-        - arn:aws:iam::aws:policy/AWSCodePipeline_FullAccess
-
-  CodeBuildProject:
-    Type: AWS::CodeBuild::Project
-    Properties:
-      Name: ecommerce-app-build
-      ServiceRole: !GetAtt CodeBuildRole.Arn
-      Artifacts:
-        Type: CODEPIPELINE
-      Environment:
-        Type: LINUX_CONTAINER
-        ComputeType: BUILD_GENERAL1_SMALL
-        Image: aws/codebuild/standard:5.0
-      Source:
-        Type: CODEPIPELINE
-        BuildSpec: buildspec.yml
-
-  CodeDeployApplication:
-    Type: AWS::CodeDeploy::Application
-    Properties:
-      ApplicationName: ecommerce-app
-
-  CodeDeployDeploymentGroup:
-    Type: AWS::CodeDeploy::DeploymentGroup
-    Properties:
-      ApplicationName: !Ref CodeDeployApplication
-      DeploymentGroupName: ecommerce-app-deployment
-      ServiceRoleArn: !GetAtt CodeDeployRole.Arn
-      DeploymentConfigName: CodeDeployDefault.AllAtOnce
-      Ec2TagFilters:
-        - Key: Environment
-          Value: Production
-          Type: KEY_AND_VALUE
-
-  Pipeline:
-    Type: AWS::CodePipeline::Pipeline
-    Properties:
-      Name: ecommerce-app-pipeline
-      RoleArn: !GetAtt CodePipelineRole.Arn
-      Stages:
-        - Name: Source
-          Actions:
-            - Name: Source
-              ActionTypeId:
-                Category: Source
-                Owner: AWS
-                Provider: CodeStarSourceConnection
-                Version: 1
-              Configuration:
-                BranchName: !Ref GitHubBranch
-                ConnectionArn: arn:aws:codestar-connections:eu-west-1:052188048367:connection/7248a5fd-c7ea-4d62-84b8-fefe527aa928
-                FullRepositoryId: !Ref GitHubOwner/!Ref GitHubRepo
-              OutputArtifacts:
-                - Name: SourceArtifact
-              InputArtifacts: []
-              RunOrder: 1
-
-        - Name: CodeQL
-          Actions:
-            - Name: CodeQL
-              ActionTypeId:
-                Category: Build
-                Owner: AWS
-                Provider: CodeBuild
-                Version: 1
-              Configuration:
-                ProjectName: ecommerce-app-codeql
-              OutputArtifacts:
-                - Name: CodeQLArtifact
-              InputArtifacts:
-                - Name: SourceArtifact
-              RunOrder: 1
-
-        - Name: Build
-          Actions:
-            - Name: Build
-              ActionTypeId:
-                Category: Build
-                Owner: AWS
-                Provider: CodeBuild
-                Version: 1
-              Configuration:
-                ProjectName: !Ref CodeBuildProject
-              OutputArtifacts:
-                - Name: BuildArtifact
-              InputArtifacts:
-                - Name: CodeQLArtifact
-              RunOrder: 1
-
-        - Name: Deploy
-          Actions:
-            - Name: Deploy
-              ActionTypeId:
-                Category: Deploy
-                Owner: AWS
-                Provider: CodeDeploy
-                Version: 1
-              Configuration:
-                ApplicationName: !Ref CodeDeployApplication
-                DeploymentGroupName: !Ref CodeDeployDeploymentGroup
-              OutputArtifacts: []
-              InputArtifacts:
-                - Name: BuildArtifact
-              RunOrder: 1 
+      Path: /
+      Policies:
+        - PolicyName: CodeDeployPolicy
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - ec2:DescribeInstances
+                  - ec2:DescribeInstanceStatus
+                  - s3:GetObject
+                  - s3:GetObjectVersion
+                Resource: '*' 

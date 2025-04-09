@@ -4,6 +4,23 @@ files:
   - source: /
     destination: /var/www/html/ecommerce
     overwrite: true
+
+permissions:
+  - object: /var/www/html/ecommerce
+    pattern: "**"
+    owner: ubuntu
+    group: ubuntu
+    mode: 755
+    type:
+      - directory
+  - object: /var/www/html/ecommerce
+    pattern: "**"
+    owner: ubuntu
+    group: ubuntu
+    mode: 644
+    type:
+      - file
+
 hooks:
   BeforeInstall:
     - location: scripts/before_install.sh

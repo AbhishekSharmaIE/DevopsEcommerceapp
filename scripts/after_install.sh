@@ -1,19 +1,33 @@
 #!/bin/bash
 set -e
 
+# Set up virtual environment
+echo "Setting up virtual environment..."
 cd /var/www/html/ecommerce
-
-# Create and activate virtual environment
 python3 -m venv venv
 source venv/bin/activate
 
-# Upgrade pip and install dependencies
-pip install --upgrade pip
+# Install Python dependencies
+echo "Installing Python dependencies..."
 pip install -r requirements.txt
 
-# Set permissions
-chown -R www-data:www-data /var/www/html/ecommerce
-chmod -R 755 /var/www/html/ecommerce
+# Set proper permissions
+echo "Setting permissions..."
+sudo chown -R ubuntu:ubuntu /var/www/html/ecommerce
+sudo chmod -R 755 /var/www/html/ecommerce
+
+# Create necessary directories
+echo "Creating necessary directories..."
+mkdir -p /var/www/html/ecommerce/logs
+touch /var/www/html/ecommerce/logs/gunicorn.log
+chown -R ubuntu:ubuntu /var/www/html/ecommerce/logs
+
+# Ensure all files have correct permissions
+find /var/www/html/ecommerce -type d -exec chmod 755 {} \;
+find /var/www/html/ecommerce -type f -exec chmod 644 {} \;
+find /var/www/html/ecommerce -name "*.sh" -exec chmod +x {} \;
+
+echo "Post-installation tasks completed successfully"
 
 # Configure nginx
 cat > /etc/nginx/sites-available/ecommerce << 'EOF'
