@@ -32,4 +32,5 @@ artifacts:
     - 'ecommerce-app.zip'
     - 'appspec.yml'
     - 'deploy-buildspec.yml'
+    - 'ec2-deploy-buildspec.yml'
   name: BuildArtifact 
