@@ -10,9 +10,9 @@ phases:
   build:
     commands:
       - echo Deploying to EC2...
-      - chmod +x deploy.sh
+      - chmod +x deployment/deploy.sh
       - export EC2_INSTANCE_ID="i-00bb588bfd349593d"
-      - ./deploy.sh
+      - ./deployment/deploy.sh
 
 artifacts:
   files:
