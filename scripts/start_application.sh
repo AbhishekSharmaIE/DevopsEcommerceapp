@@ -1,10 +1,5 @@
 #!/bin/bash
 
-# Stop any existing processes
-echo "Stopping existing processes..."
-sudo systemctl stop gunicorn || true
-pkill -f gunicorn || true
-
 # Set up the application directory
 APP_DIR="/var/www/html/ecommerce"
 cd $APP_DIR
@@ -20,19 +15,26 @@ echo "Installing dependencies..."
 source venv/bin/activate
 pip install -r requirements.txt
 
-# Start the application
-echo "Starting application..."
-nohup gunicorn --bind 0.0.0.0:5000 app:app > gunicorn.log 2>&1 &
+# Copy systemd service files
+echo "Setting up gunicorn service..."
+sudo cp scripts/gunicorn.service /etc/systemd/system/
+sudo cp scripts/gunicorn.socket /etc/systemd/system/
 
-# Save the process ID
-echo $! > gunicorn.pid
+# Reload systemd and start services
+echo "Starting gunicorn service..."
+sudo systemctl daemon-reload
+sudo systemctl enable gunicorn.socket
+sudo systemctl start gunicorn.socket
+sudo systemctl enable gunicorn
+sudo systemctl start gunicorn
 
-# Verify the application is running
+# Verify the service is running
 sleep 5
-if pgrep -f gunicorn > /dev/null; then
+if systemctl is-active --quiet gunicorn; then
     echo "Application started successfully"
     exit 0
 else
     echo "Failed to start application"
+    systemctl status gunicorn
     exit 1
 fi 

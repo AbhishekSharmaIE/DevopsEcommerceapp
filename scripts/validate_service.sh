@@ -8,8 +8,12 @@ if ! systemctl is-active --quiet nginx; then
 fi
 
 # Check if gunicorn is running
-if ! systemctl is-active --quiet gunicorn; then
-    echo "Gunicorn is not running"
+if systemctl is-active --quiet gunicorn; then
+    echo "Gunicorn service is running"
+    exit 0
+else
+    echo "Gunicorn service is not running"
+    systemctl status gunicorn
     exit 1
 fi
 
