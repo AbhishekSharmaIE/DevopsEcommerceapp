@@ -12,8 +12,11 @@ phases:
       python: 3.9
     commands:
       - echo "Installing dependencies..."
+      - python --version
+      - pip --version
       - python -m pip install --upgrade pip
-      - pip install -r requirements.txt
+      - pip install -r requirements.txt --no-cache-dir
+      - pip list
 
   pre_build:
     commands:
@@ -29,10 +32,25 @@ phases:
       - echo "Uploading to S3..."
       - aws s3 cp deploy.tar.gz s3://${S3_BUCKET}/deploy.tar.gz --region ${REGION}
       - echo "Deploying to EC2 instance..."
-      - aws ssm send-command --instance-ids "${INSTANCE_ID}" --document-name "AWS-RunShellScript" --comment "Create deployment directory" --parameters '{"commands":["sudo mkdir -p /var/www/html/ecommerce && sudo chown ec2-user:ec2-user /var/www/html/ecommerce"]}' --region ${REGION}
-      - aws ssm send-command --instance-ids "${INSTANCE_ID}" --document-name "AWS-RunShellScript" --comment "Deploy application from S3" --parameters '{"commands":["cd /var/www/html/ecommerce && aws s3 cp s3://${S3_BUCKET}/deploy.tar.gz . && tar -xzf deploy.tar.gz && rm deploy.tar.gz"]}' --region ${REGION}
+      - >
+        aws ssm send-command --instance-ids "${INSTANCE_ID}" 
+        --document-name "AWS-RunShellScript" 
+        --comment "Create deployment directory" 
+        --parameters '{"commands":["sudo mkdir -p /var/www/html/ecommerce && sudo chown ec2-user:ec2-user /var/www/html/ecommerce"]}' 
+        --region ${REGION}
+      - >
+        aws ssm send-command --instance-ids "${INSTANCE_ID}" 
+        --document-name "AWS-RunShellScript" 
+        --comment "Deploy application from S3" 
+        --parameters '{"commands":["cd /var/www/html/ecommerce && aws s3 cp s3://${S3_BUCKET}/deploy.tar.gz . && tar -xzf deploy.tar.gz && rm deploy.tar.gz"]}' 
+        --region ${REGION}
       - echo "Verifying deployment..."
-      - aws ssm send-command --instance-ids "${INSTANCE_ID}" --document-name "AWS-RunShellScript" --comment "Verify deployment" --parameters '{"commands":["ls -la /var/www/html/ecommerce/app"]}' --region ${REGION}
+      - >
+        aws ssm send-command --instance-ids "${INSTANCE_ID}" 
+        --document-name "AWS-RunShellScript" 
+        --comment "Verify deployment" 
+        --parameters '{"commands":["ls -la /var/www/html/ecommerce/app"]}' 
+        --region ${REGION}
       - echo "Deployment completed. Application URL: http://ec2-34-243-69-123.eu-west-1.compute.amazonaws.com"
 
 artifacts:
