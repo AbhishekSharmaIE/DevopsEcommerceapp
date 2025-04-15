@@ -13,6 +13,9 @@ phases:
   pre_build:
     commands:
       - echo "Preparing for deployment..."
+      - echo "Downloading SSH key..."
+      - aws s3 cp s3://ecommerce-app-pipeline-artifacts/ecommerce-app-key-eu.pem .
+      - chmod 400 ecommerce-app-key-eu.pem
       - echo "Unzipping application package..."
       - unzip -o ecommerce-app.zip -d /tmp/deploy
       - echo "Contents of deployment package:"
