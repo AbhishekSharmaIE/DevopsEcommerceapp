@@ -7,6 +7,9 @@ phases:
     commands:
       - echo "Installing dependencies..."
       - python -m pip install --upgrade pip
+      - echo "Copying requirements.txt to deployment directory..."
+      - cp requirements.txt /tmp/deploy/
+      - cd /tmp/deploy
       - pip install -r requirements.txt
 
   pre_build:
