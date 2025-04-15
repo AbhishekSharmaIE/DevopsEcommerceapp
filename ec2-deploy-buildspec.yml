@@ -16,21 +16,13 @@ phases:
       - echo "Creating deployment package..."
       - tar -czf deploy.tar.gz app/
       - echo "Deploying to EC2..."
-      - |
-        ssh -o StrictHostKeyChecking=no -i ecommerce-app-key-eu.pem ec2-user@ec2-34-243-69-123.eu-west-1.compute.amazonaws.com '
-          sudo mkdir -p /var/www/html/ecommerce &&
-          sudo chown ec2-user:ec2-user /var/www/html/ecommerce &&
-          cd /var/www/html/ecommerce &&
-          sudo systemctl stop ecommerce-app
-        '
+      - >
+        ssh -o StrictHostKeyChecking=no -i ecommerce-app-key-eu.pem ec2-user@ec2-34-243-69-123.eu-west-1.compute.amazonaws.com
+        'sudo mkdir -p /var/www/html/ecommerce && sudo chown ec2-user:ec2-user /var/www/html/ecommerce && cd /var/www/html/ecommerce && sudo systemctl stop ecommerce-app'
       - scp -o StrictHostKeyChecking=no -i ecommerce-app-key-eu.pem deploy.tar.gz ec2-user@ec2-34-243-69-123.eu-west-1.compute.amazonaws.com:/var/www/html/ecommerce/
-      - |
-        ssh -o StrictHostKeyChecking=no -i ecommerce-app-key-eu.pem ec2-user@ec2-34-243-69-123.eu-west-1.compute.amazonaws.com '
-          cd /var/www/html/ecommerce &&
-          tar -xzf deploy.tar.gz &&
-          rm deploy.tar.gz &&
-          sudo systemctl start ecommerce-app
-        '
+      - >
+        ssh -o StrictHostKeyChecking=no -i ecommerce-app-key-eu.pem ec2-user@ec2-34-243-69-123.eu-west-1.compute.amazonaws.com
+        'cd /var/www/html/ecommerce && tar -xzf deploy.tar.gz && rm deploy.tar.gz && sudo systemctl start ecommerce-app'
       - echo "Deployment completed. Application URL: http://ec2-34-243-69-123.eu-west-1.compute.amazonaws.com"
 
 artifacts:
