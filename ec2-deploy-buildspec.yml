@@ -20,7 +20,14 @@ phases:
       - echo "Preparing for deployment..."
       - echo "Downloading SSH key..."
       - aws s3 cp s3://ecommerce-app-pipeline-artifacts/ecommerce-app-key-eu.pem .
+      - echo "Checking key file exists and contents..."
+      - ls -la ecommerce-app-key-eu.pem
+      - echo "Setting correct permissions on key..."
       - chmod 400 ecommerce-app-key-eu.pem
+      - echo "Verifying key permissions..."
+      - ls -la ecommerce-app-key-eu.pem
+      - echo "Current directory:"
+      - pwd
       - echo "Contents of deployment package:"
       - ls -la /tmp/deploy
 
@@ -30,10 +37,8 @@ phases:
       - echo "Current directory $(pwd)"
       - echo "Listing files"
       - ls -la
-      - echo "Checking key file"
-      - ls -la ecommerce-app-key-eu.pem
-      - echo "Testing SSH connection"
-      - ssh -o StrictHostKeyChecking=no -i ecommerce-app-key-eu.pem -v ec2-user@ec2-34-243-69-123.eu-west-1.compute.amazonaws.com "echo 'SSH connection test'"
+      - echo "Testing SSH connection with verbose output..."
+      - ssh -v -o StrictHostKeyChecking=no -i ecommerce-app-key-eu.pem ec2-user@ec2-34-243-69-123.eu-west-1.compute.amazonaws.com "echo 'SSH connection test'"
       - echo "Creating target directory on EC2"
       - ssh -o StrictHostKeyChecking=no -i ecommerce-app-key-eu.pem ec2-user@ec2-34-243-69-123.eu-west-1.compute.amazonaws.com "sudo mkdir -p /var/www/html/ecommerce && sudo chown ec2-user:ec2-user /var/www/html/ecommerce"
       - echo "Copying application files to EC2"
