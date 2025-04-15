@@ -6,12 +6,6 @@ phases:
       python: 3.9
     commands:
       - echo "Installing dependencies..."
-      - echo "Current directory:"
-      - pwd
-      - echo "Directory contents:"
-      - ls -la
-      - echo "Checking for requirements.txt in different locations:"
-      - find . -name requirements.txt
       - pip install --upgrade pip
       - pip install awscli
       - pip install boto3
@@ -26,21 +20,12 @@ phases:
 
   build:
     commands:
-      - echo "Installing application dependencies..."
-      - cd /tmp/deploy
-      - pip install -r requirements.txt
-      - echo "Setting up application directory..."
-      - mkdir -p /var/www/html/ecommerce
-      - cp -r * /var/www/html/ecommerce/
-      - echo "Setting up virtual environment..."
-      - python3 -m venv /var/www/html/ecommerce/venv
-      - /var/www/html/ecommerce/venv/bin/pip install -r /var/www/html/ecommerce/requirements.txt
+      - echo "Deploying to EC2 instance..."
+      - aws s3 cp /tmp/deploy/ecommerce-app.zip s3://ecommerce-app-pipeline-artifacts/
+      - aws ssm send-command --instance-ids i-00bb588bfd349593d --document-name AWS-RunShellScript --parameters 'commands=["cd /tmp && aws s3 cp s3://ecommerce-app-pipeline-artifacts/ecommerce-app.zip . && unzip -o ecommerce-app.zip -d /var/www/html/ecommerce && cd /var/www/html/ecommerce && python3 -m venv venv && venv/bin/pip install -r requirements.txt && nohup venv/bin/gunicorn --bind 0.0.0.0:5000 app:app > gunicorn.log 2>&1 &"]' --region eu-west-1
 
   post_build:
     commands:
-      - echo "Starting application..."
-      - cd /var/www/html/ecommerce
-      - nohup /var/www/html/ecommerce/venv/bin/gunicorn --bind 0.0.0.0:5000 app:app > gunicorn.log 2>&1 &
       - echo "Deployment completed successfully"
 
 artifacts:

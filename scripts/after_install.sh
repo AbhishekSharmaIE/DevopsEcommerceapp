@@ -4,11 +4,14 @@ set -e
 # Set up virtual environment
 echo "Setting up virtual environment..."
 cd /var/www/html/ecommerce
-python3 -m venv venv
+if [ ! -d "venv" ]; then
+    python3 -m venv venv
+fi
 source venv/bin/activate
 
 # Install Python dependencies
 echo "Installing Python dependencies..."
+pip install --upgrade pip
 pip install -r requirements.txt
 
 # Set proper permissions

@@ -45,10 +45,15 @@ After=network.target
 User=ubuntu
 Group=ubuntu
 WorkingDirectory=/var/www/html/ecommerce
+Environment="PATH=/var/www/html/ecommerce/venv/bin"
 ExecStart=/var/www/html/ecommerce/venv/bin/gunicorn --access-logfile - --workers 3 --bind 0.0.0.0:5000 app:app
 
 [Install]
 WantedBy=multi-user.target
 EOF
 
-sudo systemctl daemon-reload 
+sudo systemctl daemon-reload
+
+# Ensure proper permissions
+sudo chown -R ubuntu:ubuntu /var/www/html/ecommerce
+sudo chmod -R 755 /var/www/html/ecommerce 

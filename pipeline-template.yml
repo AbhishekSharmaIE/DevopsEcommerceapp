@@ -183,10 +183,16 @@ Resources:
                   - logs:CreateLogGroup
                   - logs:CreateLogStream
                   - logs:PutLogEvents
+                Resource: '*'
+              - Effect: Allow
+                Action:
                   - s3:GetObject
                   - s3:GetObjectVersion
                   - s3:PutObject
-                Resource: '*'
+                  - s3:ListBucket
+                Resource:
+                  - !Sub 'arn:aws:s3:::${S3Bucket}/*'
+                  - !Sub 'arn:aws:s3:::${S3Bucket}'
 
   CodeDeployApplication:
     Type: AWS::CodeDeploy::Application
@@ -204,8 +210,10 @@ Resources:
       DeploymentStyle:
         DeploymentType: IN_PLACE
         DeploymentOption: WITHOUT_TRAFFIC_CONTROL
-      Ec2TagFilters: []
-      OnPremisesInstanceTagFilters: []
+      Ec2TagFilters:
+        - Key: Name
+          Value: ecommerce-app
+          Type: KEY_AND_VALUE
       AutoRollbackConfiguration:
         Enabled: true
         Events:
