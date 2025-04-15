@@ -7,6 +7,8 @@ phases:
     commands:
       - echo "Installing dependencies..."
       - python -m pip install --upgrade pip
+      - echo "Unzipping application package..."
+      - unzip -o ecommerce-app.zip
       - echo "Copying requirements.txt from source..."
       - cp app/requirements.txt .
       - echo "Copying requirements.txt to deployment directory..."
