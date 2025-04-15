@@ -22,13 +22,11 @@ phases:
     commands:
       - echo "Deploying to EC2 instance..."
       - echo "Copying application files to EC2..."
-      - aws ssm send-command --instance-ids i-00bb588bfd349593d --document-name AWS-RunShellScript --parameters 'commands=["mkdir -p /var/www/html/ecommerce"]' --region eu-west-1
-      - aws ssm send-command --instance-ids i-00bb588bfd349593d --document-name AWS-RunShellScript --parameters 'commands=["cd /var/www/html/ecommerce && rm -rf *"]' --region eu-west-1
-      - aws ssm send-command --instance-ids i-00bb588bfd349593d --document-name AWS-RunShellScript --parameters 'commands=["cp -r /tmp/deploy/* /var/www/html/ecommerce/"]' --region eu-west-1
+      - scp -o StrictHostKeyChecking=no -i ecommerce-app-key-eu.pem -r /tmp/deploy/* ec2-user@ec2-34-243-69-123.eu-west-1.compute.amazonaws.com:/var/www/html/ecommerce/
       - echo "Setting up Python virtual environment..."
-      - aws ssm send-command --instance-ids i-00bb588bfd349593d --document-name AWS-RunShellScript --parameters 'commands=["cd /var/www/html/ecommerce && python3 -m venv venv && venv/bin/pip install -r requirements.txt"]' --region eu-west-1
+      - ssh -o StrictHostKeyChecking=no -i ecommerce-app-key-eu.pem ec2-user@ec2-34-243-69-123.eu-west-1.compute.amazonaws.com "cd /var/www/html/ecommerce && python3 -m venv venv && venv/bin/pip install -r requirements.txt"
       - echo "Starting Gunicorn server..."
-      - aws ssm send-command --instance-ids i-00bb588bfd349593d --document-name AWS-RunShellScript --parameters 'commands=["cd /var/www/html/ecommerce && nohup venv/bin/gunicorn --bind 0.0.0.0:5000 app:app > gunicorn.log 2>&1 &"]' --region eu-west-1
+      - ssh -o StrictHostKeyChecking=no -i ecommerce-app-key-eu.pem ec2-user@ec2-34-243-69-123.eu-west-1.compute.amazonaws.com "cd /var/www/html/ecommerce && nohup venv/bin/gunicorn --bind 0.0.0.0:5000 app:app > gunicorn.log 2>&1 &"
 
   post_build:
     commands:
