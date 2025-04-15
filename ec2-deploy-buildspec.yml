@@ -10,6 +10,13 @@ phases:
       - python -m pip install --upgrade pip
       - pip install -r requirements.txt
 
+  pre_build:
+    commands:
+      - echo "Setting up SSH key..."
+      - mkdir -p ~/.ssh
+      - aws ssm get-parameter --name "/ecommerce-app/ssh-key" --with-decryption --region eu-west-1 --query "Parameter.Value" --output text > ~/.ssh/ecommerce-key.pem
+      - chmod 600 ~/.ssh/ecommerce-key.pem
+
   build:
     commands:
       - echo "Starting deployment..."
@@ -17,13 +24,17 @@ phases:
       - tar -czf deploy.tar.gz app/
       - echo "Deploying to EC2..."
       - >
-        ssh -o StrictHostKeyChecking=no -i ecommerce-app-key-eu.pem ec2-user@ec2-34-243-69-123.eu-west-1.compute.amazonaws.com
+        ssh -o StrictHostKeyChecking=no -i ~/.ssh/ecommerce-key.pem ec2-user@ec2-34-243-69-123.eu-west-1.compute.amazonaws.com
         'sudo mkdir -p /var/www/html/ecommerce && sudo chown ec2-user:ec2-user /var/www/html/ecommerce && cd /var/www/html/ecommerce && sudo systemctl stop ecommerce-app'
-      - scp -o StrictHostKeyChecking=no -i ecommerce-app-key-eu.pem deploy.tar.gz ec2-user@ec2-34-243-69-123.eu-west-1.compute.amazonaws.com:/var/www/html/ecommerce/
+      - scp -o StrictHostKeyChecking=no -i ~/.ssh/ecommerce-key.pem deploy.tar.gz ec2-user@ec2-34-243-69-123.eu-west-1.compute.amazonaws.com:/var/www/html/ecommerce/
       - >
-        ssh -o StrictHostKeyChecking=no -i ecommerce-app-key-eu.pem ec2-user@ec2-34-243-69-123.eu-west-1.compute.amazonaws.com
+        ssh -o StrictHostKeyChecking=no -i ~/.ssh/ecommerce-key.pem ec2-user@ec2-34-243-69-123.eu-west-1.compute.amazonaws.com
         'cd /var/www/html/ecommerce && tar -xzf deploy.tar.gz && rm deploy.tar.gz && sudo systemctl start ecommerce-app'
       - echo "Deployment completed. Application URL: http://ec2-34-243-69-123.eu-west-1.compute.amazonaws.com"
+
+  post_build:
+    commands:
+      - rm -f ~/.ssh/ecommerce-key.pem
 
 artifacts:
   files:
