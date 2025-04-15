@@ -6,9 +6,7 @@ phases:
       python: 3.9
     commands:
       - echo "Installing dependencies..."
-      - pip install --upgrade pip
-      - pip install awscli
-      - pip install boto3
+      - pip install -r requirements.txt
 
   pre_build:
     commands:
@@ -23,15 +21,20 @@ phases:
 
   build:
     commands:
-      - echo "Deploying to EC2 instance..."
+      - echo "Starting deployment..."
+      - echo "Current directory: $(pwd)"
+      - echo "Listing files:"
+      - ls -la
+      - echo "Checking key file:"
+      - ls -la ecommerce-app-key-eu.pem
+      - echo "Testing SSH connection:"
+      - ssh -o StrictHostKeyChecking=no -i ecommerce-app-key-eu.pem -v ec2-user@ec2-34-243-69-123.eu-west-1.compute.amazonaws.com "echo 'SSH connection test'"
       - echo "Creating target directory on EC2..."
       - ssh -o StrictHostKeyChecking=no -i ecommerce-app-key-eu.pem ec2-user@ec2-34-243-69-123.eu-west-1.compute.amazonaws.com "sudo mkdir -p /var/www/html/ecommerce && sudo chown ec2-user:ec2-user /var/www/html/ecommerce"
       - echo "Copying application files to EC2..."
-      - scp -o StrictHostKeyChecking=no -i ecommerce-app-key-eu.pem -r /tmp/deploy/* ec2-user@ec2-34-243-69-123.eu-west-1.compute.amazonaws.com:/var/www/html/ecommerce/
-      - echo "Setting up Python virtual environment..."
-      - ssh -o StrictHostKeyChecking=no -i ecommerce-app-key-eu.pem ec2-user@ec2-34-243-69-123.eu-west-1.compute.amazonaws.com "cd /var/www/html/ecommerce && python3 -m venv venv && venv/bin/pip install -r requirements.txt"
-      - echo "Starting Gunicorn server..."
-      - ssh -o StrictHostKeyChecking=no -i ecommerce-app-key-eu.pem ec2-user@ec2-34-243-69-123.eu-west-1.compute.amazonaws.com "cd /var/www/html/ecommerce && nohup venv/bin/gunicorn --bind 0.0.0.0:5000 app:app > gunicorn.log 2>&1 &"
+      - scp -o StrictHostKeyChecking=no -i ecommerce-app-key-eu.pem -r app/* ec2-user@ec2-34-243-69-123.eu-west-1.compute.amazonaws.com:/var/www/html/ecommerce/
+      - echo "Restarting application..."
+      - ssh -o StrictHostKeyChecking=no -i ecommerce-app-key-eu.pem ec2-user@ec2-34-243-69-123.eu-west-1.compute.amazonaws.com "cd /var/www/html/ecommerce && sudo systemctl restart ecommerce-app"
 
   post_build:
     commands:
