@@ -1,6 +1,5 @@
 version: 0.2
 
-# Updated buildspec with absolute paths for SSH key
 phases:
   install:
     runtime-versions:
@@ -12,26 +11,35 @@ phases:
 
   pre_build:
     commands:
-      - echo "Setting up SSH key..."
-      - mkdir -p ~/.ssh
-      - aws ssm get-parameter --name "/ecommerce-app/ssh-key" --with-decryption --region eu-west-1 --query "Parameter.Value" --output text > ~/.ssh/ecommerce-key.pem
-      - chmod 600 ~/.ssh/ecommerce-key.pem
+      - echo "Installing Session Manager plugin..."
+      - curl "https://s3.amazonaws.com/session-manager-downloads/plugin/latest/ubuntu_64bit/session-manager-plugin.deb" -o "session-manager-plugin.deb"
+      - sudo dpkg -i session-manager-plugin.deb
+      - rm session-manager-plugin.deb
 
   build:
     commands:
       - echo "Creating deployment package..."
       - tar -czf deploy.tar.gz app/
-      - echo "Deploying to EC2..."
-      - ssh -o StrictHostKeyChecking=no -i ~/.ssh/ecommerce-key.pem ec2-user@ec2-34-243-69-123.eu-west-1.compute.amazonaws.com "sudo mkdir -p /var/www/html/ecommerce"
-      - scp -o StrictHostKeyChecking=no -i ~/.ssh/ecommerce-key.pem deploy.tar.gz ec2-user@ec2-34-243-69-123.eu-west-1.compute.amazonaws.com:/var/www/html/ecommerce/
-      - ssh -o StrictHostKeyChecking=no -i ~/.ssh/ecommerce-key.pem ec2-user@ec2-34-243-69-123.eu-west-1.compute.amazonaws.com "cd /var/www/html/ecommerce && tar -xzf deploy.tar.gz && rm deploy.tar.gz"
+      - echo "Uploading to S3..."
+      - aws s3 cp deploy.tar.gz s3://ecommerce-app-deploy/deploy.tar.gz --region eu-west-1
+      - echo "Deploying to EC2 instance..."
+      - |
+        aws ssm send-command \
+          --instance-ids "i-0a423fae01494c799" \
+          --document-name "AWS-RunShellScript" \
+          --comment "Create deployment directory" \
+          --parameters '{"commands":["sudo mkdir -p /var/www/html/ecommerce"]}' \
+          --region eu-west-1
+      - |
+        aws ssm send-command \
+          --instance-ids "i-0a423fae01494c799" \
+          --document-name "AWS-RunShellScript" \
+          --comment "Deploy application from S3" \
+          --parameters '{"commands":["cd /var/www/html/ecommerce && aws s3 cp s3://ecommerce-app-deploy/deploy.tar.gz . && tar -xzf deploy.tar.gz && rm deploy.tar.gz"]}' \
+          --region eu-west-1
       - echo "Deployment completed. Application URL: http://ec2-34-243-69-123.eu-west-1.compute.amazonaws.com"
-
-  post_build:
-    commands:
-      - rm -f ~/.ssh/ecommerce-key.pem
 
 artifacts:
   files:
-    - '**/*'
-  name: DeployArtifact 
+    - "**/*"
+  name: DeployArtifact
