@@ -79,10 +79,10 @@ Resources:
           Value: ecommerce-app
           Type: KEY_AND_VALUE
 
-  CodeBuildProject:
+  TestProject:
     Type: AWS::CodeBuild::Project
     Properties:
-      Name: ecommerce-app-build
+      Name: ecommerce-app-test
       ServiceRole: !GetAtt CodeBuildRole.Arn
       Artifacts:
         Type: CODEPIPELINE
@@ -92,20 +92,7 @@ Resources:
         Image: aws/codebuild/standard:5.0
       Source:
         Type: CODEPIPELINE
-        BuildSpec: |
-          version: 0.2
-          phases:
-            install:
-              commands:
-                - pip install -r requirements.txt
-            build:
-              commands:
-                - echo Build started on `date`
-                - echo Building the application
-          artifacts:
-            files:
-              - '**/*'
-            name: ecommerce-app-build
+        BuildSpec: test-buildspec.yml
 
   Pipeline:
     Type: AWS::CodePipeline::Pipeline
@@ -131,6 +118,36 @@ Resources:
               OutputArtifacts:
                 - Name: SourceOutput
               RunOrder: 1
+        - Name: CodeQL
+          Actions:
+            - Name: CodeQL
+              ActionTypeId:
+                Category: Build
+                Owner: AWS
+                Provider: CodeBuild
+                Version: 1
+              Configuration:
+                ProjectName: ecommerce-app-codeql
+              InputArtifacts:
+                - Name: SourceOutput
+              OutputArtifacts:
+                - Name: CodeQLOutput
+              RunOrder: 1
+        - Name: Test
+          Actions:
+            - Name: Test
+              ActionTypeId:
+                Category: Build
+                Owner: AWS
+                Provider: CodeBuild
+                Version: 1
+              Configuration:
+                ProjectName: !Ref TestProject
+              InputArtifacts:
+                - Name: SourceOutput
+              OutputArtifacts:
+                - Name: TestOutput
+              RunOrder: 1
         - Name: Build
           Actions:
             - Name: Build
@@ -140,7 +157,7 @@ Resources:
                 Provider: CodeBuild
                 Version: 1
               Configuration:
-                ProjectName: ecommerce-app-ec2-deploy
+                ProjectName: ecommerce-app-build-new
               InputArtifacts:
                 - Name: SourceOutput
               OutputArtifacts:

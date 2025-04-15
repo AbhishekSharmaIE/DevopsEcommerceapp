@@ -1,0 +1,19 @@
+version: 0.2
+
+phases:
+  install:
+    commands:
+      - pip install pylint
+      - pip install -r requirements.txt
+  build:
+    commands:
+      - echo "Running Pylint analysis..."
+      - pylint --output-format=json app/ > pylint-report.json || true
+      - echo "Pylint analysis completed"
+
+reports:
+  pylint:
+    files:
+      - 'pylint-report.json'
+    file-format: 'JSON'
+    base-directory: '.' 
