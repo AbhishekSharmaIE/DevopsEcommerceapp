@@ -1,0 +1,154 @@
+{
+    "name": "ecommerce-app-pipeline",
+    "roleArn": "arn:aws:iam::052188048367:role/CodePipelineServiceRole-ecommerce-app",
+    "artifactStore": {
+        "type": "S3",
+        "location": "ecommerce-app-pipeline-artifacts"
+    },
+    "stages": [
+        {
+            "name": "Source",
+            "actions": [
+                {
+                    "name": "Source",
+                    "actionTypeId": {
+                        "category": "Source",
+                        "owner": "AWS",
+                        "provider": "CodeStarSourceConnection",
+                        "version": "1"
+                    },
+                    "runOrder": 1,
+                    "configuration": {
+                        "BranchName": "main",
+                        "ConnectionArn": "arn:aws:codestar-connections:eu-west-1:052188048367:connection/7248a5fd-c7ea-4d62-84b8-fefe527aa928",
+                        "FullRepositoryId": "AbhishekSharmaIE/DevopsEcommerceapp"
+                    },
+                    "outputArtifacts": [
+                        {
+                            "name": "SourceArtifact"
+                        }
+                    ],
+                    "inputArtifacts": [],
+                    "region": "eu-west-1",
+                    "namespace": "SourceVariables"
+                }
+            ]
+        },
+        {
+            "name": "CodeQL",
+            "actions": [
+                {
+                    "name": "CodeQL",
+                    "actionTypeId": {
+                        "category": "Build",
+                        "owner": "AWS",
+                        "provider": "CodeBuild",
+                        "version": "1"
+                    },
+                    "runOrder": 1,
+                    "configuration": {
+                        "ProjectName": "ecommerce-app-codeql"
+                    },
+                    "outputArtifacts": [
+                        {
+                            "name": "CodeQLArtifact"
+                        }
+                    ],
+                    "inputArtifacts": [
+                        {
+                            "name": "SourceArtifact"
+                        }
+                    ],
+                    "region": "eu-west-1",
+                    "namespace": "CodeQLVariables"
+                }
+            ]
+        },
+        {
+            "name": "Test",
+            "actions": [
+                {
+                    "name": "Test",
+                    "actionTypeId": {
+                        "category": "Build",
+                        "owner": "AWS",
+                        "provider": "CodeBuild",
+                        "version": "1"
+                    },
+                    "runOrder": 1,
+                    "configuration": {
+                        "ProjectName": "ecommerce-app-test"
+                    },
+                    "outputArtifacts": [
+                        {
+                            "name": "TestArtifact"
+                        }
+                    ],
+                    "inputArtifacts": [
+                        {
+                            "name": "SourceArtifact"
+                        }
+                    ],
+                    "region": "eu-west-1",
+                    "namespace": "TestVariables"
+                }
+            ]
+        },
+        {
+            "name": "Build",
+            "actions": [
+                {
+                    "name": "Build",
+                    "actionTypeId": {
+                        "category": "Build",
+                        "owner": "AWS",
+                        "provider": "CodeBuild",
+                        "version": "1"
+                    },
+                    "runOrder": 1,
+                    "configuration": {
+                        "ProjectName": "ecommerce-app-build-new"
+                    },
+                    "outputArtifacts": [
+                        {
+                            "name": "BuildArtifact"
+                        }
+                    ],
+                    "inputArtifacts": [
+                        {
+                            "name": "SourceArtifact"
+                        }
+                    ],
+                    "region": "eu-west-1",
+                    "namespace": "BuildVariables"
+                }
+            ]
+        },
+        {
+            "name": "Deploy",
+            "actions": [
+                {
+                    "name": "Deploy",
+                    "actionTypeId": {
+                        "category": "Build",
+                        "owner": "AWS",
+                        "provider": "CodeBuild",
+                        "version": "1"
+                    },
+                    "runOrder": 1,
+                    "configuration": {
+                        "ProjectName": "ecommerce-app-ec2-deploy"
+                    },
+                    "outputArtifacts": [],
+                    "inputArtifacts": [
+                        {
+                            "name": "BuildArtifact"
+                        }
+                    ],
+                    "region": "eu-west-1",
+                    "namespace": "DeployVariables"
+                }
+            ]
+        }
+    ]
+} 

@@ -22,7 +22,14 @@ phases:
     commands:
       - echo "Deploying to EC2 instance..."
       - aws s3 cp /tmp/deploy/ecommerce-app.zip s3://ecommerce-app-pipeline-artifacts/
-      - aws ssm send-command --instance-ids i-00bb588bfd349593d --document-name AWS-RunShellScript --parameters 'commands=["cd /tmp && aws s3 cp s3://ecommerce-app-pipeline-artifacts/ecommerce-app.zip . && unzip -o ecommerce-app.zip -d /var/www/html/ecommerce && cd /var/www/html/ecommerce && python3 -m venv venv && venv/bin/pip install -r requirements.txt && nohup venv/bin/gunicorn --bind 0.0.0.0:5000 app:app > gunicorn.log 2>&1 &"]' --region eu-west-1
+      - echo "Downloading application to EC2..."
+      - aws ssm send-command --instance-ids i-00bb588bfd349593d --document-name AWS-RunShellScript --parameters 'commands=["cd /tmp && aws s3 cp s3://ecommerce-app-pipeline-artifacts/ecommerce-app.zip ."]' --region eu-west-1
+      - echo "Unzipping application..."
+      - aws ssm send-command --instance-ids i-00bb588bfd349593d --document-name AWS-RunShellScript --parameters 'commands=["unzip -o /tmp/ecommerce-app.zip -d /var/www/html/ecommerce"]' --region eu-west-1
+      - echo "Setting up Python virtual environment..."
+      - aws ssm send-command --instance-ids i-00bb588bfd349593d --document-name AWS-RunShellScript --parameters 'commands=["cd /var/www/html/ecommerce && python3 -m venv venv && venv/bin/pip install -r requirements.txt"]' --region eu-west-1
+      - echo "Starting Gunicorn server..."
+      - aws ssm send-command --instance-ids i-00bb588bfd349593d --document-name AWS-RunShellScript --parameters 'commands=["cd /var/www/html/ecommerce && nohup venv/bin/gunicorn --bind 0.0.0.0:5000 app:app > gunicorn.log 2>&1 &"]' --region eu-west-1
 
   post_build:
     commands:

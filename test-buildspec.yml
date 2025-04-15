@@ -10,10 +10,17 @@ phases:
       - echo "Running Pylint analysis..."
       - pylint --output-format=json app/ > pylint-report.json || true
       - echo "Pylint analysis completed"
+      - mkdir -p test-artifacts
+      - cp pylint-report.json test-artifacts/
 
 reports:
   pylint:
     files:
       - 'pylint-report.json'
     file-format: 'JSON'
-    base-directory: '.' 
+    base-directory: '.'
+
+artifacts:
+  files:
+    - 'test-artifacts/**/*'
+  name: TestArtifacts 
