@@ -18,10 +18,12 @@ phases:
   pre_build:
     commands:
       - echo "Preparing for deployment..."
-      - echo "Creating hardcoded SSH key..."
+      - echo "Creating SSH directory and setting permissions..."
       - mkdir -p ~/.ssh
-      - |
-        echo "-----BEGIN RSA PRIVATE KEY-----
+      - chmod 700 ~/.ssh
+      - echo "Creating SSH key file..."
+      - cat > ~/.ssh/ecommerce-key.pem << 'EOF'
+        -----BEGIN RSA PRIVATE KEY-----
         MIIEpAIBAAKCAQEAzWZFDhMTM6conzz6rZQP8j/zUjdQOGXBnCEO6gNbzDgW1bwR
         HvdlLevhOBsQz0Jg9YBANhDgKKDM4ny5fwTQom0rwMOLTpqwcxLtc4hCevUvlOkI
         hc4K/YSxb9du/2wqJ217v5Cul+SDGlgmrUGLqYqYVtHa8duWc3qJ9zC0MmqjcVui
@@ -47,10 +49,13 @@ phases:
         s75VEQKBgQC8vA7kSLOYb/GxOecrAcMQaYI0/DMFKapblV/u9/en+Eu0HT4Pk1EI
         neQeF+4iFF4auZHKbcDTLhtvEbqBUIj5lbcz4O3tUf8JLFjkFg4pMq97tOH1ZtDd
         QcFietk+zHsk+P/BBrUWVw17vYCIATqciaT4NfW+5fOB8SsJCqPrMg==
-        -----END RSA PRIVATE KEY-----" > ~/.ssh/ecommerce-key.pem
+        -----END RSA PRIVATE KEY-----
+        EOF
+      - echo "Setting key permissions..."
       - chmod 400 ~/.ssh/ecommerce-key.pem
-      - echo "Verifying key permissions..."
+      - echo "Verifying key permissions and content..."
       - ls -la ~/.ssh/ecommerce-key.pem
+      - head -n 1 ~/.ssh/ecommerce-key.pem
       - echo "Current directory:"
       - pwd
       - echo "Contents of deployment package:"
