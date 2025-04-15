@@ -8,11 +8,8 @@ phases:
       - echo "Installing dependencies..."
       - python -m pip install --upgrade pip
       - echo "Unzipping application package..."
-      - unzip -o ecommerce-app.zip
-      - echo "Copying requirements.txt from source..."
-      - cp app/requirements.txt .
-      - echo "Copying requirements.txt to deployment directory..."
-      - cp requirements.txt /tmp/deploy/
+      - unzip -o ecommerce-app.zip -d /tmp/deploy
+      - echo "Installing requirements..."
       - cd /tmp/deploy
       - pip install -r requirements.txt
 
@@ -22,8 +19,6 @@ phases:
       - echo "Downloading SSH key..."
       - aws s3 cp s3://ecommerce-app-pipeline-artifacts/ecommerce-app-key-eu.pem .
       - chmod 400 ecommerce-app-key-eu.pem
-      - echo "Unzipping application package..."
-      - unzip -o ecommerce-app.zip -d /tmp/deploy
       - echo "Contents of deployment package:"
       - ls -la /tmp/deploy
 
@@ -40,7 +35,7 @@ phases:
       - echo "Creating target directory on EC2"
       - ssh -o StrictHostKeyChecking=no -i ecommerce-app-key-eu.pem ec2-user@ec2-34-243-69-123.eu-west-1.compute.amazonaws.com "sudo mkdir -p /var/www/html/ecommerce && sudo chown ec2-user:ec2-user /var/www/html/ecommerce"
       - echo "Copying application files to EC2"
-      - scp -o StrictHostKeyChecking=no -i ecommerce-app-key-eu.pem -r app/* ec2-user@ec2-34-243-69-123.eu-west-1.compute.amazonaws.com:/var/www/html/ecommerce/
+      - scp -o StrictHostKeyChecking=no -i ecommerce-app-key-eu.pem -r /tmp/deploy/app/* ec2-user@ec2-34-243-69-123.eu-west-1.compute.amazonaws.com:/var/www/html/ecommerce/
       - echo "Restarting application"
       - ssh -o StrictHostKeyChecking=no -i ecommerce-app-key-eu.pem ec2-user@ec2-34-243-69-123.eu-west-1.compute.amazonaws.com "cd /var/www/html/ecommerce && sudo systemctl restart ecommerce-app"
 
