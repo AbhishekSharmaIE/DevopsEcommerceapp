@@ -144,11 +144,25 @@ jobs:
           echo "Setting up Nginx..."
           # Setup Nginx
           sudo apt-get install -y nginx
+          
+          # Remove any existing configurations
+          sudo rm -f /etc/nginx/sites-enabled/*
+          sudo rm -f /etc/nginx/sites-available/*
+          
+          # Create and apply new configuration
           sudo cp nginx.conf /etc/nginx/sites-available/ecommerce
           sudo ln -sf /etc/nginx/sites-available/ecommerce /etc/nginx/sites-enabled/
-          sudo rm -f /etc/nginx/sites-enabled/default
+          
+          # Verify Nginx configuration
+          echo "Testing Nginx configuration..."
           sudo nginx -t
+          
+          # Restart Nginx
+          echo "Restarting Nginx..."
           sudo systemctl restart nginx
+          
+          # Wait for Nginx to start
+          sleep 5
           
           echo "Verifying services..."
           # Verify services are running
@@ -160,6 +174,8 @@ jobs:
           ps aux | grep gunicorn
           echo "Checking port 8000:"
           sudo netstat -tlpn | grep 8000
+          echo "Checking Nginx configuration:"
+          sudo cat /etc/nginx/sites-enabled/ecommerce
           echo "Checking Nginx error log:"
           sudo tail -n 20 /var/log/nginx/error.log
           echo "Checking Gunicorn error log:"
@@ -168,6 +184,10 @@ jobs:
           ls -la /var/www/html/ecommerce/app/static/images/products/
           echo "Checking static files:"
           ls -la /var/www/html/ecommerce/app/static/images/products/
+          
+          # Test the connection
+          echo "Testing connection to Gunicorn..."
+          curl -v http://127.0.0.1:8000
         ENDSSH
         )
         
