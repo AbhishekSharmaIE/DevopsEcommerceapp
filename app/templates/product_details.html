@@ -14,7 +14,7 @@
             
             {% if current_user.is_authenticated %}
                 <div class="d-flex gap-2">
-                    <a href="{{ url_for('add_to_cart', product_id=product.id) }}" class="btn btn-primary">
+                    <a href="{{ url_for('add_to_cart', product_id=product.id) }}" class="btn btn-danger">
                         Add to Cart
                     </a>
                     <a href="{{ url_for('add_to_wishlist', product_id=product.id) }}" class="btn btn-outline-primary">
