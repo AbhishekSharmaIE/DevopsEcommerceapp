@@ -25,12 +25,12 @@ phases:
       - cp -r scripts deploy/
       - cp appspec.yml deploy/
       - cp ec2-deploy-buildspec.yml deploy/
-      - cd deploy && zip -r ../ecommerce-app.zip . -x "*.git*" "*.pyc" "*.pyo" "*.pyd" "*.so" "*.egg" "*.egg-info" "__pycache__" "*.swp" "*.swo" "*.bak" "*.tmp" "*.log" "*.pid" "*.pid.lock" "*.lock" "*.DS_Store" "*.idea" "*.vscode" "*.env" "*.venv" "venv/*" "node_modules/*" "*.zip"
+      - cd deploy && zip -r ../app.zip . -x "*.git*" "*.pyc" "*.pyo" "*.pyd" "*.so" "*.egg" "*.egg-info" "__pycache__" "*.swp" "*.swo" "*.bak" "*.tmp" "*.log" "*.pid" "*.pid.lock" "*.lock" "*.DS_Store" "*.idea" "*.vscode" "*.env" "*.venv" "venv/*" "node_modules/*" "*.zip"
       - echo "Deployment package created"
 
 artifacts:
   files:
-    - 'ecommerce-app.zip'
+    - 'app.zip'
     - 'appspec.yml'
     - 'deploy-buildspec.yml'
     - 'ec2-deploy-buildspec.yml'
