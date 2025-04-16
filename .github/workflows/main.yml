@@ -87,7 +87,7 @@ jobs:
         name: build-artifacts
         path: .
         
-    - name: Setup SSH Key
+    - name: Setup SSH
       run: |
         mkdir -p ~/.ssh/
         echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/ecommerce-app-key-eu.pem
@@ -95,26 +95,18 @@ jobs:
         eval $(ssh-agent -s)
         ssh-add ~/.ssh/ecommerce-app-key-eu.pem
         ssh-keyscan -H ${{ env.EC2_HOST }} >> ~/.ssh/known_hosts
+        cat ~/.ssh/ecommerce-app-key-eu.pem
         
     - name: Deploy to EC2
-      uses: appleboy/scp-action@v0.1.7
-      with:
-        host: ${{ env.EC2_HOST }}
-        username: ${{ env.EC2_USER }}
-        key: ~/.ssh/ecommerce-app-key-eu.pem
-        source: "app.zip"
-        target: "/tmp"
-        strip_components: 0
+      run: |
+        scp -i ~/.ssh/ecommerce-app-key-eu.pem -o StrictHostKeyChecking=no app.zip ${{ env.EC2_USER }}@${{ env.EC2_HOST }}:/tmp/
         
     - name: Execute deployment script
-      uses: appleboy/ssh-action@v1.0.3
-      with:
-        host: ${{ env.EC2_HOST }}
-        username: ${{ env.EC2_USER }}
-        key: ~/.ssh/ecommerce-app-key-eu.pem
-        script: |
+      run: |
+        ssh -i ~/.ssh/ecommerce-app-key-eu.pem -o StrictHostKeyChecking=no ${{ env.EC2_USER }}@${{ env.EC2_HOST }} << 'EOF'
           cd /tmp
           unzip -o app.zip -d /var/www/html/ecommerce
           cd /var/www/html/ecommerce
           chmod +x deploy.sh
-          ./deploy.sh 
+          ./deploy.sh
+        EOF 
