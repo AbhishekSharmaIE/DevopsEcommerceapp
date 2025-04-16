@@ -102,7 +102,7 @@
                     "runOrder": 1,
                     "configuration": {
                         "ApplicationName": "ecommerce-app",
-                        "DeploymentGroupName": "ecommerce-app-deployment-group-new"
+                        "DeploymentGroupName": "ecommerce-app-deployment-group-direct"
                     },
                     "outputArtifacts": [],
                     "inputArtifacts": [
