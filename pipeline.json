@@ -102,7 +102,8 @@
                         },
                         "runOrder": 1,
                         "configuration": {
-                            "ProjectName": "ecommerce-app-deploy"
+                            "ProjectName": "ecommerce-app-deploy",
+                            "EnvironmentVariables": "[{\"name\":\"EC2_HOST\",\"value\":\"ec2-52-214-107-96.eu-west-1.compute.amazonaws.com\",\"type\":\"PLAINTEXT\"},{\"name\":\"EC2_USER\",\"value\":\"ubuntu\",\"type\":\"PLAINTEXT\"},{\"name\":\"SSH_PRIVATE_KEY\",\"value\":\"$(cat /tmp/deploy_key)\",\"type\":\"PLAINTEXT\"}]"
                         },
                         "outputArtifacts": [
                             {

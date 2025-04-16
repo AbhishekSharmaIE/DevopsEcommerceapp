@@ -9,6 +9,8 @@ on:
 env:
   EC2_HOST: ec2-52-214-107-96.eu-west-1.compute.amazonaws.com
   EC2_USER: ubuntu
+  FLASK_ENV: development
+  FLASK_APP: app.app
 
 jobs:
   test:
@@ -25,15 +27,17 @@ jobs:
       run: |
         python -m pip install --upgrade pip
         pip install -r requirements.txt
-        pip install pytest pylint
+        pip install pytest pytest-cov
         
-    - name: Run tests
+    - name: Run tests with coverage
       run: |
-        python -m pytest tests/
+        pytest --cov=app tests/ --cov-report=xml
         
-    - name: Run linting
-      run: |
-        pylint app/ --output-format=text > pylint_report.txt || true
+    - name: Upload coverage report
+      uses: codecov/codecov-action@v3
+      with:
+        file: ./coverage.xml
+        fail_ci_if_error: true
 
   build:
     needs: test
