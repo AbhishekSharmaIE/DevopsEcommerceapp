@@ -19,7 +19,7 @@
                                     View Details
                                 </a>
                                 {% if current_user.is_authenticated %}
-                                    <a href="{{ url_for('add_to_cart', product_id=product.id) }}" class="btn btn-danger">
+                                    <a href="{{ url_for('add_to_cart', product_id=product.id) }}" class="btn btn-success">
                                         Add to Cart
                                     </a>
                                 {% endif %}
