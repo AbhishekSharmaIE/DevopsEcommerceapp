@@ -13,12 +13,6 @@ permissions:
     mode: 755
     type:
       - directory
-  - object: /var/www/html/ecommerce
-    pattern: "**"
-    owner: www-data
-    group: www-data
-    mode: 644
-    type:
       - file
 
 hooks:
