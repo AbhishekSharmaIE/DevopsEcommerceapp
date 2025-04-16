@@ -8,11 +8,23 @@ phases:
       - echo "Installing dependencies..."
       - pip install awscli
 
+  pre_build:
+    commands:
+      - echo "Preparing for deployment..."
+      - mkdir -p ~/.ssh
+      - echo "$SSH_PRIVATE_KEY" > ~/.ssh/deploy_key
+      - chmod 600 ~/.ssh/deploy_key
+      - ssh-keyscan -H $EC2_HOST >> ~/.ssh/known_hosts
+      - mkdir -p deploy
+      - cp gunicorn.service deploy/
+      - cp nginx.conf deploy/
+      - cp -r app deploy/
+
   build:
     commands:
       - echo "Starting deployment..."
       - chmod +x deploy.sh
-      - EC2_HOST="ec2-52-214-107-96.eu-west-1.compute.amazonaws.com" EC2_USER="ubuntu" KEY_PATH="/tmp/deploy_key" ./deploy.sh
+      - EC2_HOST="$EC2_HOST" EC2_USER="$EC2_USER" KEY_PATH="~/.ssh/deploy_key" ./deploy.sh
 
 artifacts:
   files:
