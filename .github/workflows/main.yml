@@ -104,6 +104,10 @@ jobs:
           
           echo "Starting deployment..."
           
+          # Stop services first
+          sudo systemctl stop nginx
+          sudo systemctl stop gunicorn
+          
           # Create directory if it doesn't exist
           sudo mkdir -p /var/www/html/ecommerce
           
@@ -155,6 +159,8 @@ jobs:
           sudo tail -n 20 /var/log/nginx/error.log
           echo "Checking Gunicorn error log:"
           sudo journalctl -u gunicorn -n 20
+          echo "Checking directory permissions:"
+          ls -la /var/www/html/ecommerce/app/static/images/products/
         ENDSSH
         )
         
