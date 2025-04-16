@@ -23,6 +23,7 @@ phases:
       - cp Procfile deploy/
       - cp nginx.conf deploy/
       - cp gunicorn.service deploy/
+      - cp gunicorn.socket deploy/
       - cp deploy.sh deploy/
       - cp -r scripts deploy/
       - chmod +x deploy/scripts/*.sh
@@ -45,4 +46,7 @@ artifacts:
     - appspec.yml
     - deploy.sh
     - ec2-deploy-buildspec.yml
+    - gunicorn.service
+    - gunicorn.socket
+    - nginx.conf
   name: BuildArtifact 
