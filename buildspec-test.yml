@@ -1,0 +1,27 @@
+version: 0.2
+
+phases:
+  install:
+    runtime-versions:
+      python: 3.9
+    commands:
+      - pip install -r requirements.txt
+      - pip install pytest pytest-cov pylint
+  pre_build:
+    commands:
+      - echo "Starting test phase"
+  build:
+    commands:
+      - echo "Running tests with coverage"
+      - pytest --cov=app tests/ --cov-report=xml:coverage.xml
+      - echo "Running pylint analysis"
+      - pylint app/ tests/ --output-format=text > pylint_report.txt || true
+  post_build:
+    commands:
+      - echo "Test phase completed"
+
+artifacts:
+  files:
+    - coverage.xml
+    - pylint_report.txt
+  name: TestArtifact 
