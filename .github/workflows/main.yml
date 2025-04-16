@@ -100,7 +100,9 @@ jobs:
         
     - name: Execute deployment script
       run: |
-        ssh -i ~/.ssh/ecommerce-app-key-eu.pem -o StrictHostKeyChecking=no ${{ env.EC2_USER }}@${{ env.EC2_HOST }} << 'ENDSSH'
+        ssh -i ~/.ssh/ecommerce-app-key-eu.pem -o StrictHostKeyChecking=no ${{ env.EC2_USER }}@${{ env.EC2_HOST }} 'bash -s' << 'ENDSSH'
+          set -e
+          
           # Create directory if it doesn't exist
           sudo mkdir -p /var/www/html/ecommerce
           
@@ -139,4 +141,8 @@ jobs:
           
           # Start the application
           sudo systemctl restart gunicorn
+          
+          # Verify services are running
+          sudo systemctl status gunicorn
+          sudo systemctl status nginx
         ENDSSH 
