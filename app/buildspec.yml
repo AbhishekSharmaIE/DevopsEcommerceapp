@@ -24,6 +24,9 @@ phases:
       - cp nginx.conf deploy/
       - cp -r scripts deploy/
       - cp appspec.yml deploy/
+      - mkdir -p deploy/app/data
+      - touch deploy/app/data/users.json
+      - touch deploy/app/data/products.json
       - cd deploy && zip -r ../ecommerce-app.zip . -x "*.git*" "*.pyc" "*.pyo" "*.pyd" "*.so" "*.egg" "*.egg-info" "__pycache__" "*.swp" "*.swo" "*.bak" "*.tmp" "*.log" "*.pid" "*.pid.lock" "*.lock" "*.DS_Store" "*.idea" "*.vscode" "*.env" "*.venv" "venv/*" "node_modules/*" "*.zip"
       - echo "Deployment package created"
 

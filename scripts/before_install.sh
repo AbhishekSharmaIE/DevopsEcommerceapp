@@ -8,7 +8,8 @@ pkill -f gunicorn || true
 # Create application directory if it doesn't exist
 echo "Creating application directory..."
 sudo mkdir -p /var/www/html/ecommerce
-sudo chown -R ubuntu:ubuntu /var/www/html/ecommerce
+sudo mkdir -p /var/www/html/ecommerce/app/data
+sudo chown -R www-data:www-data /var/www/html/ecommerce
 
 # Install required system packages
 echo "Installing system dependencies..."
@@ -42,11 +43,11 @@ Description=gunicorn daemon
 After=network.target
 
 [Service]
-User=ubuntu
-Group=ubuntu
+User=www-data
+Group=www-data
 WorkingDirectory=/var/www/html/ecommerce
 Environment="PATH=/var/www/html/ecommerce/venv/bin"
-ExecStart=/var/www/html/ecommerce/venv/bin/gunicorn --access-logfile - --workers 3 --bind 0.0.0.0:5000 app:app
+ExecStart=/var/www/html/ecommerce/venv/bin/gunicorn --access-logfile - --workers 3 --bind 0.0.0.0:5000 app.app:app
 
 [Install]
 WantedBy=multi-user.target
@@ -55,5 +56,5 @@ EOF
 sudo systemctl daemon-reload
 
 # Ensure proper permissions
-sudo chown -R ubuntu:ubuntu /var/www/html/ecommerce
+sudo chown -R www-data:www-data /var/www/html/ecommerce
 sudo chmod -R 755 /var/www/html/ecommerce 

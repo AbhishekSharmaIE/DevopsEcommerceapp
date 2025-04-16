@@ -10,6 +10,7 @@ import json
 import os
 import re
 from datetime import datetime
+import logging
 
 app = Flask(__name__)
 app.config["SECRET_KEY"] = "open-secret-key"  # Using a simple key for development
@@ -17,6 +18,21 @@ bcrypt = Bcrypt(app)
 login_manager = LoginManager(app)
 login_manager.login_view = 'login'
 login_manager.login_message_category = 'info'
+
+# Configure logging
+logging.basicConfig(level=logging.DEBUG)
+logger = logging.getLogger(__name__)
+
+# Define base directory
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+DATA_DIR = os.path.join(BASE_DIR, 'data')
+PRODUCTS_FILE = os.path.join(DATA_DIR, 'products.json')
+USERS_FILE = os.path.join(DATA_DIR, 'users.json')
+
+logger.debug(f"BASE_DIR: {BASE_DIR}")
+logger.debug(f"DATA_DIR: {DATA_DIR}")
+logger.debug(f"PRODUCTS_FILE: {PRODUCTS_FILE}")
+logger.debug(f"USERS_FILE: {USERS_FILE}")
 
 class User(UserMixin):
     def __init__(self, id, username, email, password):
@@ -34,14 +50,23 @@ class User(UserMixin):
 # Load products from local JSON file
 def load_products():
     try:
-        with open('data/products.json', 'r') as f:
-            return json.load(f)
-    except FileNotFoundError:
+        logger.debug(f"Attempting to load products from {PRODUCTS_FILE}")
+        if not os.path.exists(PRODUCTS_FILE):
+            logger.error(f"Products file not found at {PRODUCTS_FILE}")
+            return []
+        with open(PRODUCTS_FILE, 'r') as f:
+            products = json.load(f)
+            logger.debug(f"Successfully loaded {len(products)} products")
+            return products
+    except Exception as e:
+        logger.error(f"Error loading products: {str(e)}")
         return []
 
 # Get all products
 def get_all_products():
-    return load_products()
+    products = load_products()
+    logger.debug(f"Returning {len(products)} products")
+    return products
 
 # Get product by ID
 def get_product(product_id):
@@ -65,7 +90,10 @@ def search_products(term):
 # Load users from JSON file
 def load_users():
     try:
-        with open('data/users.json', 'r') as f:
+        if not os.path.exists(USERS_FILE):
+            logger.error(f"Users file not found at {USERS_FILE}")
+            return {}
+        with open(USERS_FILE, 'r') as f:
             data = json.load(f)
             # Convert stored users back to User objects
             users_dict = {}
@@ -78,23 +106,27 @@ def load_users():
                 )
                 users_dict[int(user_id)] = user
             return users_dict
-    except FileNotFoundError:
+    except Exception as e:
+        logger.error(f"Error loading users: {str(e)}")
         return {}
 
 # Save users to JSON file
 def save_users(users_dict):
-    users_data = {
-        'users': {
-            str(user_id): {
-                'username': user.username,
-                'email': user.email,
-                'password': user.password
+    try:
+        users_data = {
+            'users': {
+                str(user_id): {
+                    'username': user.username,
+                    'email': user.email,
+                    'password': user.password
+                }
+                for user_id, user in users_dict.items()
             }
-            for user_id, user in users_dict.items()
         }
-    }
-    with open('data/users.json', 'w') as f:
-        json.dump(users_data, f, indent=4)
+        with open(USERS_FILE, 'w') as f:
+            json.dump(users_data, f, indent=4)
+    except Exception as e:
+        logger.error(f"Error saving users: {str(e)}")
 
 # Load users at startup
 users = load_users()

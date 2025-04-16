@@ -16,14 +16,18 @@ pip install -r requirements.txt
 
 # Set proper permissions
 echo "Setting permissions..."
-sudo chown -R ubuntu:ubuntu /var/www/html/ecommerce
+sudo chown -R www-data:www-data /var/www/html/ecommerce
 sudo chmod -R 755 /var/www/html/ecommerce
 
 # Create necessary directories
 echo "Creating necessary directories..."
 mkdir -p /var/www/html/ecommerce/logs
+mkdir -p /var/www/html/ecommerce/app/data
 touch /var/www/html/ecommerce/logs/gunicorn.log
-chown -R ubuntu:ubuntu /var/www/html/ecommerce/logs
+touch /var/www/html/ecommerce/app/data/users.json
+touch /var/www/html/ecommerce/app/data/products.json
+chown -R www-data:www-data /var/www/html/ecommerce/logs
+chown -R www-data:www-data /var/www/html/ecommerce/app/data
 
 # Ensure all files have correct permissions
 find /var/www/html/ecommerce -type d -exec chmod 755 {} \;
@@ -61,7 +65,7 @@ User=www-data
 Group=www-data
 WorkingDirectory=/var/www/html/ecommerce
 Environment="PATH=/var/www/html/ecommerce/venv/bin"
-ExecStart=/var/www/html/ecommerce/venv/bin/gunicorn --workers 3 --bind 0.0.0.0:5000 app:app
+ExecStart=/var/www/html/ecommerce/venv/bin/gunicorn --workers 3 --bind 0.0.0.0:5000 app.app:app
 
 [Install]
 WantedBy=multi-user.target
