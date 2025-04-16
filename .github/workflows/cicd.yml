@@ -29,7 +29,13 @@ jobs:
       
       - name: Run pylint
         run: |
-          pylint --output-format=text app.py > pylint-report.txt
+          pylint --output-format=text app/app.py > pylint-report.txt
+          
+      - name: Upload coverage reports to Codecov
+        uses: codecov/codecov-action@v3
+        with:
+          file: ./coverage.xml
+          fail_ci_if_error: true
 
   deploy:
     needs: test
@@ -45,7 +51,10 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: eu-west-1
       
-      - name: Deploy to EC2
+      - name: Create CodeDeploy Deployment
         run: |
-          # Add your deployment commands here
-          ssh -i ${{ secrets.SSH_KEY }} ubuntu@ec2-63-33-199-126.eu-west-1.compute.amazonaws.com "cd /var/www/ecommerce && git pull && sudo systemctl restart ecommerce" 
+          aws deploy create-deployment \
+            --application-name ecommerce-app-deploy \
+            --deployment-group-name ecommerce-app-deploy-group \
+            --github-location repository=${{ github.repository }},commitId=${{ github.sha }} \
+            --region eu-west-1 

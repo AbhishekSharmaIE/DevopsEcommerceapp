@@ -1,5 +1,8 @@
 # E-commerce Application
 
+![CI/CD Pipeline](https://github.com/AbhishekSharmaIE/DevopsEcommerceapp/actions/workflows/cicd.yml/badge.svg)
+![CodeQL](https://github.com/AbhishekSharmaIE/DevopsEcommerceapp/actions/workflows/codeql.yml/badge.svg)
+
 A Flask-based e-commerce application with features including:
 - User authentication (login/register)
 - Product catalog with local storage
@@ -18,7 +21,16 @@ A Flask-based e-commerce application with features including:
 - Product search and filtering
 - Responsive design using Bootstrap
 
-## Setup
+## Technology Stack
+
+- Python 3.11
+- Flask web framework
+- AWS CodeDeploy for deployment
+- GitHub Actions for CI/CD
+- Nginx as reverse proxy
+- Gunicorn as WSGI server
+
+## Development
 
 1. Clone the repository:
 ```bash
@@ -46,6 +58,16 @@ python init_db.py
 ```bash
 python app.py
 ```
+
+## Deployment
+
+The application is automatically deployed to AWS EC2 using CodeDeploy when changes are pushed to the main branch.
+
+## Security
+
+- CodeQL analysis for security scanning
+- Regular dependency updates
+- Secure configuration practices
 
 ## Password Requirements
 
