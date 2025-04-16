@@ -54,6 +54,5 @@ phases:
       - echo "Deployment completed. Application URL: http://ec2-34-243-69-123.eu-west-1.compute.amazonaws.com"
 
 artifacts:
-  files:
-    - "**/*"
+  files: "**/*"
   name: DeployArtifact
