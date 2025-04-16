@@ -95,17 +95,20 @@
                     {
                         "name": "Deploy",
                         "actionTypeId": {
-                            "category": "Deploy",
+                            "category": "Build",
                             "owner": "AWS",
-                            "provider": "CodeDeploy",
+                            "provider": "CodeBuild",
                             "version": "1"
                         },
                         "runOrder": 1,
                         "configuration": {
-                            "ApplicationName": "ecommerce-app",
-                            "DeploymentGroupName": "ecommerce-app-deployment-group"
+                            "ProjectName": "ecommerce-app-deploy"
                         },
-                        "outputArtifacts": [],
+                        "outputArtifacts": [
+                            {
+                                "name": "DeployArtifact"
+                            }
+                        ],
                         "inputArtifacts": [
                             {
                                 "name": "BuildArtifact"

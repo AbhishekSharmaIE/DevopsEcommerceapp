@@ -6,29 +6,15 @@ phases:
       python: 3.9
     commands:
       - echo "Installing dependencies..."
-      - pip install -r requirements.txt
+      - pip install awscli
 
   build:
     commands:
-      - echo "Building application..."
-      - python -m compileall app/
-      - echo "Build completed"
-
-  post_build:
-    commands:
-      - echo "Creating deployment package..."
-      - mkdir -p deploy/app
-      - cp -r app/* deploy/app/
-      - cp requirements.txt deploy/
-      - cp Procfile deploy/
-      - cp nginx.conf deploy/
-      - cp -r scripts deploy/
-      - cp appspec.yml deploy/
-      - cd deploy && zip -r ../ecommerce-app.zip . -x "*.git*" "*.pyc" "*.pyo" "*.pyd" "*.so" "*.egg" "*.egg-info" "__pycache__" "*.swp" "*.swo" "*.bak" "*.tmp" "*.log" "*.pid" "*.pid.lock" "*.lock" "*.DS_Store" "*.idea" "*.vscode" "*.env" "*.venv" "venv/*" "node_modules/*" "*.zip"
-      - echo "Deployment package created"
+      - echo "Starting deployment..."
+      - chmod +x deploy.sh
+      - EC2_HOST="ec2-52-214-107-96.eu-west-1.compute.amazonaws.com" EC2_USER="ubuntu" KEY_PATH="/tmp/deploy_key" ./deploy.sh
 
 artifacts:
   files:
-    - 'ecommerce-app.zip'
-    - 'appspec.yml'
-  name: BuildArtifact 
+    - '**/*'
+  name: DeployArtifact 

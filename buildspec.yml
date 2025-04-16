@@ -22,8 +22,11 @@ phases:
       - cp app/requirements.txt deploy/
       - cp Procfile deploy/
       - cp nginx.conf deploy/
+      - cp gunicorn.service deploy/
+      - cp deploy.sh deploy/
       - cp -r scripts deploy/
       - chmod +x deploy/scripts/*.sh
+      - chmod +x deploy/deploy.sh
       - cp appspec.yml deploy/
       - echo "Listing contents of deploy directory before zipping:"
       - ls -la deploy/
@@ -40,5 +43,6 @@ artifacts:
   files:
     - app.zip
     - appspec.yml
+    - deploy.sh
     - ec2-deploy-buildspec.yml
   name: BuildArtifact 
