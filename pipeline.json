@@ -101,8 +101,8 @@
                     },
                     "runOrder": 1,
                     "configuration": {
-                        "ApplicationName": "ecommerce-app",
-                        "DeploymentGroupName": "ecommerce-app-deployment-group-direct"
+                        "ApplicationName": "ecommerce-app-deploy",
+                        "DeploymentGroupName": "ecommerce-app-deploy-group"
                     },
                     "outputArtifacts": [],
                     "inputArtifacts": [
