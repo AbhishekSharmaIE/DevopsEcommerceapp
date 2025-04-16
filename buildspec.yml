@@ -22,18 +22,23 @@ phases:
       - cp app/requirements.txt deploy/
       - cp Procfile deploy/
       - cp nginx.conf deploy/
-      - mkdir -p deploy/scripts
-      - cp -r scripts/* deploy/scripts/
+      - cp -r scripts deploy/
       - chmod +x deploy/scripts/*.sh
       - cp appspec.yml deploy/
-      - cp ec2-deploy-buildspec.yml deploy/
-      - cd deploy && zip -r ../app.zip . -x "*.git*" "*.pyc" "*.pyo" "*.pyd" "*.so" "*.egg" "*.egg-info" "__pycache__" "*.swp" "*.swo" "*.bak" "*.tmp" "*.log" "*.pid" "*.pid.lock" "*.lock" "*.DS_Store" "*.idea" "*.vscode" "*.env" "*.venv" "venv/*" "node_modules/*" "*.zip"
+      - echo "Listing contents of deploy directory before zipping:"
+      - ls -la deploy/
+      - echo "Listing contents of deploy/scripts directory:"
+      - ls -la deploy/scripts/
+      - cd deploy
+      - zip -r ../app.zip . -x "*.git*" "*.pyc" "*.pyo" "*.pyd" "*.so" "*.egg" "*.egg-info" "__pycache__/*" "*.swp" "*.swo" "*.bak" "*.tmp" "*.log" "*.pid" "*.pid.lock" "*.lock" "*.DS_Store" "*.idea/*" "*.vscode/*" "*.env" "*.venv" "venv/*" "node_modules/*"
+      - cd ..
+      - echo "Listing contents of zip file:"
+      - unzip -l app.zip | grep scripts/
       - echo "Deployment package created"
 
 artifacts:
   files:
-    - 'app.zip'
-    - 'appspec.yml'
-    - 'deploy-buildspec.yml'
-    - 'ec2-deploy-buildspec.yml'
+    - app.zip
+    - appspec.yml
+    - ec2-deploy-buildspec.yml
   name: BuildArtifact 
