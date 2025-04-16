@@ -59,10 +59,8 @@ jobs:
         cp nginx.conf deploy/
         cp gunicorn.service deploy/
         cp gunicorn.socket deploy/
-        cp deploy.sh deploy/
         cp -r scripts deploy/
         chmod +x deploy/scripts/*.sh
-        chmod +x deploy/deploy.sh
         cp appspec.yml deploy/
         cd deploy
         zip -r ../app.zip . -x "*.git*" "*.pyc" "*.pyo" "*.pyd" "*.so" "*.egg" "*.egg-info" "__pycache__/*" "*.swp" "*.swo" "*.bak" "*.tmp" "*.log" "*.pid" "*.pid.lock" "*.lock" "*.DS_Store" "*.idea/*" "*.vscode/*" "*.env" "*.venv" "venv/*" "node_modules/*"
@@ -117,10 +115,28 @@ jobs:
           sudo chown -R ubuntu:ubuntu /var/www/html/ecommerce
           sudo chmod -R 755 /var/www/html/ecommerce
           
-          # Make deploy script executable
-          sudo chmod +x /var/www/html/ecommerce/deploy.sh
-          
-          # Execute deploy script
+          # Install Python dependencies
           cd /var/www/html/ecommerce
-          ./deploy.sh
+          sudo apt-get update
+          sudo apt-get install -y python3-pip python3-venv
+          python3 -m venv venv
+          source venv/bin/activate
+          pip install -r requirements.txt
+          
+          # Setup Gunicorn
+          sudo cp gunicorn.service /etc/systemd/system/
+          sudo cp gunicorn.socket /etc/systemd/system/
+          sudo systemctl daemon-reload
+          sudo systemctl enable gunicorn.socket
+          sudo systemctl start gunicorn.socket
+          
+          # Setup Nginx
+          sudo apt-get install -y nginx
+          sudo cp nginx.conf /etc/nginx/sites-available/ecommerce
+          sudo ln -sf /etc/nginx/sites-available/ecommerce /etc/nginx/sites-enabled/
+          sudo rm -f /etc/nginx/sites-enabled/default
+          sudo systemctl restart nginx
+          
+          # Start the application
+          sudo systemctl restart gunicorn
         ENDSSH 
