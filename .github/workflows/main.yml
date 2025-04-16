@@ -92,24 +92,26 @@ jobs:
         mkdir -p ~/.ssh/
         echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/ecommerce-app-key-eu.pem
         chmod 600 ~/.ssh/ecommerce-app-key-eu.pem
-        echo "${{ secrets.SSH_PRIVATE_KEY }}" > /tmp/deploy_key
-        chmod 600 /tmp/deploy_key
+        eval $(ssh-agent -s)
+        ssh-add ~/.ssh/ecommerce-app-key-eu.pem
+        ssh-keyscan -H ${{ env.EC2_HOST }} >> ~/.ssh/known_hosts
         
     - name: Deploy to EC2
       uses: appleboy/scp-action@v0.1.7
       with:
         host: ${{ env.EC2_HOST }}
         username: ${{ env.EC2_USER }}
-        key: /tmp/deploy_key
+        key: ~/.ssh/ecommerce-app-key-eu.pem
         source: "app.zip"
         target: "/tmp"
+        strip_components: 0
         
     - name: Execute deployment script
       uses: appleboy/ssh-action@v1.0.3
       with:
         host: ${{ env.EC2_HOST }}
         username: ${{ env.EC2_USER }}
-        key: /tmp/deploy_key
+        key: ~/.ssh/ecommerce-app-key-eu.pem
         script: |
           cd /tmp
           unzip -o app.zip -d /var/www/html/ecommerce
