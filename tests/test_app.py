@@ -1,10 +1,15 @@
 import pytest
-from app import app
+from app.app import app
 
 @pytest.fixture
-def client():
+def app_fixture():
     app.config['TESTING'] = True
-    with app.test_client() as client:
+    app.config['WTF_CSRF_ENABLED'] = False
+    return app
+
+@pytest.fixture
+def client(app_fixture):
+    with app_fixture.test_client() as client:
         yield client
 
 def test_home_page(client):
