@@ -125,6 +125,10 @@ jobs:
           source venv/bin/activate
           pip install -r requirements.txt
           
+          # Create Gunicorn socket directory
+          sudo mkdir -p /run/gunicorn
+          sudo chown ubuntu:ubuntu /run/gunicorn
+          
           # Setup Gunicorn
           sudo cp gunicorn.service /etc/systemd/system/
           sudo cp gunicorn.socket /etc/systemd/system/
@@ -143,8 +147,18 @@ jobs:
           sudo systemctl restart gunicorn
           
           # Verify services are running
+          echo "Checking Gunicorn status:"
           sudo systemctl status gunicorn
+          echo "Checking Nginx status:"
           sudo systemctl status nginx
+          echo "Checking Gunicorn socket:"
+          sudo systemctl status gunicorn.socket
+          echo "Checking socket file:"
+          ls -l /run/gunicorn.sock
+          echo "Checking Nginx error log:"
+          sudo tail -n 20 /var/log/nginx/error.log
+          echo "Checking Gunicorn error log:"
+          sudo journalctl -u gunicorn -n 20
         ENDSSH
         )
         

@@ -4,13 +4,15 @@ Requires=gunicorn.socket
 After=network.target
 
 [Service]
-User=www-data
-Group=www-data
+User=ubuntu
+Group=ubuntu
 WorkingDirectory=/var/www/html/ecommerce/app
+Environment="PATH=/var/www/html/ecommerce/venv/bin"
 ExecStart=/var/www/html/ecommerce/venv/bin/gunicorn \
           --access-logfile - \
           --workers 3 \
           --bind unix:/run/gunicorn.sock \
+          --timeout 120 \
           app:app
 
 [Install]

@@ -3,8 +3,8 @@ Description=gunicorn socket
 
 [Socket]
 ListenStream=/run/gunicorn.sock
-SocketUser=www-data
-SocketGroup=www-data
+SocketUser=ubuntu
+SocketGroup=ubuntu
 SocketMode=660
 
 [Install]
