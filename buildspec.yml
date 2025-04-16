@@ -22,7 +22,9 @@ phases:
       - cp app/requirements.txt deploy/
       - cp Procfile deploy/
       - cp nginx.conf deploy/
-      - cp -r scripts deploy/
+      - mkdir -p deploy/scripts
+      - cp -r scripts/* deploy/scripts/
+      - chmod +x deploy/scripts/*.sh
       - cp appspec.yml deploy/
       - cp ec2-deploy-buildspec.yml deploy/
       - cd deploy && zip -r ../app.zip . -x "*.git*" "*.pyc" "*.pyo" "*.pyd" "*.so" "*.egg" "*.egg-info" "__pycache__" "*.swp" "*.swo" "*.bak" "*.tmp" "*.log" "*.pid" "*.pid.lock" "*.lock" "*.DS_Store" "*.idea" "*.vscode" "*.env" "*.venv" "venv/*" "node_modules/*" "*.zip"
