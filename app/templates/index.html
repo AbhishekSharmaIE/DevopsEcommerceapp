@@ -14,7 +14,7 @@
                     <p class="card-text text-muted">{{ product.category }}</p>
                     <p class="card-text"><strong>${{ "%.2f"|format(product.price) }}</strong></p>
                     <div class="d-flex justify-content-between">
-                        <a href="{{ url_for('product_details', id=product.id) }}" class="btn btn-warning">
+                        <a href="{{ url_for('product_details', id=product.id) }}" class="btn btn-info">
                             View Details
                         </a>
                         {% if current_user.is_authenticated %}
