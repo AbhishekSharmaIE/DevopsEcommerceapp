@@ -95,7 +95,6 @@ jobs:
         eval $(ssh-agent -s)
         ssh-add ~/.ssh/ecommerce-app-key-eu.pem
         ssh-keyscan -H ${{ env.EC2_HOST }} >> ~/.ssh/known_hosts
-        cat ~/.ssh/ecommerce-app-key-eu.pem
         
     - name: Deploy to EC2
       run: |
@@ -103,10 +102,25 @@ jobs:
         
     - name: Execute deployment script
       run: |
-        ssh -i ~/.ssh/ecommerce-app-key-eu.pem -o StrictHostKeyChecking=no ${{ env.EC2_USER }}@${{ env.EC2_HOST }} << 'EOF'
+        ssh -i ~/.ssh/ecommerce-app-key-eu.pem -o StrictHostKeyChecking=no ${{ env.EC2_USER }}@${{ env.EC2_HOST }} << 'ENDSSH'
+          # Create directory if it doesn't exist
+          sudo mkdir -p /var/www/html/ecommerce
+          
+          # Set proper permissions
+          sudo chown -R ubuntu:ubuntu /var/www/html/ecommerce
+          
+          # Unzip the application
           cd /tmp
-          unzip -o app.zip -d /var/www/html/ecommerce
+          sudo unzip -o app.zip -d /var/www/html/ecommerce
+          
+          # Set permissions for the application
+          sudo chown -R ubuntu:ubuntu /var/www/html/ecommerce
+          sudo chmod -R 755 /var/www/html/ecommerce
+          
+          # Make deploy script executable
+          sudo chmod +x /var/www/html/ecommerce/deploy.sh
+          
+          # Execute deploy script
           cd /var/www/html/ecommerce
-          chmod +x deploy.sh
           ./deploy.sh
-        EOF 
+        ENDSSH 
