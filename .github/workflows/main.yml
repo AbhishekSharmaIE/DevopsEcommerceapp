@@ -58,7 +58,6 @@ jobs:
         cp Procfile deploy/
         cp nginx.conf deploy/
         cp gunicorn.service deploy/
-        cp gunicorn.socket deploy/
         cp -r scripts deploy/
         chmod +x deploy/scripts/*.sh
         cp appspec.yml deploy/
@@ -103,13 +102,15 @@ jobs:
         DEPLOY_SCRIPT=$(cat << 'ENDSSH'
           set -e
           
+          echo "Starting deployment..."
+          
           # Create directory if it doesn't exist
           sudo mkdir -p /var/www/html/ecommerce
           
           # Set proper permissions
           sudo chown -R ubuntu:ubuntu /var/www/html/ecommerce
           
-          # Unzip the application
+          echo "Unzipping application..."
           cd /tmp
           sudo unzip -o app.zip -d /var/www/html/ecommerce
           
@@ -117,7 +118,7 @@ jobs:
           sudo chown -R ubuntu:ubuntu /var/www/html/ecommerce
           sudo chmod -R 755 /var/www/html/ecommerce
           
-          # Install Python dependencies
+          echo "Installing Python dependencies..."
           cd /var/www/html/ecommerce
           sudo apt-get update
           sudo apt-get install -y python3-pip python3-venv
@@ -125,17 +126,14 @@ jobs:
           source venv/bin/activate
           pip install -r requirements.txt
           
-          # Create Gunicorn socket directory
-          sudo mkdir -p /run/gunicorn
-          sudo chown ubuntu:ubuntu /run/gunicorn
-          
+          echo "Setting up Gunicorn..."
           # Setup Gunicorn
           sudo cp gunicorn.service /etc/systemd/system/
-          sudo cp gunicorn.socket /etc/systemd/system/
           sudo systemctl daemon-reload
-          sudo systemctl enable gunicorn.socket
-          sudo systemctl start gunicorn.socket
+          sudo systemctl enable gunicorn
+          sudo systemctl start gunicorn
           
+          echo "Setting up Nginx..."
           # Setup Nginx
           sudo apt-get install -y nginx
           sudo cp nginx.conf /etc/nginx/sites-available/ecommerce
@@ -143,18 +141,16 @@ jobs:
           sudo rm -f /etc/nginx/sites-enabled/default
           sudo systemctl restart nginx
           
-          # Start the application
-          sudo systemctl restart gunicorn
-          
+          echo "Verifying services..."
           # Verify services are running
           echo "Checking Gunicorn status:"
           sudo systemctl status gunicorn
           echo "Checking Nginx status:"
           sudo systemctl status nginx
-          echo "Checking Gunicorn socket:"
-          sudo systemctl status gunicorn.socket
-          echo "Checking socket file:"
-          ls -l /run/gunicorn.sock
+          echo "Checking Gunicorn process:"
+          ps aux | grep gunicorn
+          echo "Checking port 8000:"
+          sudo netstat -tlpn | grep 8000
           echo "Checking Nginx error log:"
           sudo tail -n 20 /var/log/nginx/error.log
           echo "Checking Gunicorn error log:"

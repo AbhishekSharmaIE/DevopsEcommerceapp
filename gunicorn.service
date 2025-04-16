@@ -1,6 +1,5 @@
 [Unit]
 Description=gunicorn daemon
-Requires=gunicorn.socket
 After=network.target
 
 [Service]
@@ -10,8 +9,9 @@ WorkingDirectory=/var/www/html/ecommerce/app
 Environment="PATH=/var/www/html/ecommerce/venv/bin"
 ExecStart=/var/www/html/ecommerce/venv/bin/gunicorn \
           --access-logfile - \
+          --error-logfile - \
           --workers 3 \
-          --bind unix:/run/gunicorn.sock \
+          --bind 127.0.0.1:8000 \
           --timeout 120 \
           app:app
 
