@@ -1,7 +1,7 @@
 {
     "pipeline": {
         "name": "ecommerce-app-pipeline",
-        "roleArn": "arn:aws:iam::052188048367:role/service-role/AWSCodePipelineServiceRole-eu-west-1-ecommerce-app-pipeline",
+        "roleArn": "arn:aws:iam::052188048367:role/CodePipelineServiceRole-ecommerce-app",
         "artifactStore": {
             "type": "S3",
             "location": "ecommerce-app-pipeline-artifacts"
@@ -21,7 +21,7 @@
                         "runOrder": 1,
                         "configuration": {
                             "BranchName": "main",
-                            "ConnectionArn": "arn:aws:codestar-connections:eu-west-1:052188048367:connection/5d1c0c0c-1c2c-4b3c-8d4c-5e6c7c8d9e0f",
+                            "ConnectionArn": "arn:aws:codestar-connections:eu-west-1:052188048367:connection/3f744d61-f906-487c-810f-849374dc9227",
                             "FullRepositoryId": "AbhishekSharmaIE/DevopsEcommerceapp"
                         },
                         "outputArtifacts": [
