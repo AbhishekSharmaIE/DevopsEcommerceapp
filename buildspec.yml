@@ -22,8 +22,8 @@ phases:
       - cp app/requirements.txt deploy/
       - cp Procfile deploy/
       - cp nginx.conf deploy/
-      - cp $CODEBUILD_SRC_DIR/gunicorn.service deploy/
-      - cp $CODEBUILD_SRC_DIR/gunicorn.socket deploy/
+      - cp gunicorn.service deploy/
+      - cp gunicorn.socket deploy/
       - cp deploy.sh deploy/
       - cp -r scripts deploy/
       - chmod +x deploy/scripts/*.sh
