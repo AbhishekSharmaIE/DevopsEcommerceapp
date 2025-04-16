@@ -36,7 +36,7 @@ phases:
         aws ssm send-command --instance-ids "${INSTANCE_ID}" 
         --document-name "AWS-RunShellScript" 
         --comment "Create deployment directory" 
-        --parameters '{"commands":["sudo mkdir -p /var/www/html/ecommerce && sudo chown ec2-user:ec2-user /var/www/html/ecommerce"]}' 
+        --parameters '{"commands":["sudo mkdir -p /var/www/html/ecommerce && sudo chown ubuntu:ubuntu /var/www/html/ecommerce"]}' 
         --region ${REGION}
       - >
         aws ssm send-command --instance-ids "${INSTANCE_ID}" 
@@ -51,7 +51,7 @@ phases:
         --comment "Verify deployment" 
         --parameters '{"commands":["ls -la /var/www/html/ecommerce/app"]}' 
         --region ${REGION}
-      - echo "Deployment completed. Application URL: http://ec2-34-243-69-123.eu-west-1.compute.amazonaws.com"
+      - echo "Deployment completed. Application URL: http://ec2-52-214-107-96.eu-west-1.compute.amazonaws.com"
 
 artifacts:
   files: "**/*"

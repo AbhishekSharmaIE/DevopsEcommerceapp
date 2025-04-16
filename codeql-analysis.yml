@@ -1,0 +1,23 @@
+version: 0.2
+
+phases:
+  install:
+    runtime-versions:
+      python: 3.9
+    commands:
+      - echo "Installing CodeQL CLI..."
+      - wget https://github.com/github/codeql-cli-binaries/releases/download/v2.14.5/codeql-linux64.zip
+      - unzip codeql-linux64.zip
+      - export PATH="$PATH:$(pwd)/codeql"
+
+  build:
+    commands:
+      - echo "Running CodeQL analysis..."
+      - codeql database create codeql-db --language=python
+      - codeql database analyze codeql-db --format=sarif-latest --output=codeql-results.sarif
+      - echo "Analysis completed"
+
+artifacts:
+  files:
+    - codeql-results.sarif
+  name: CodeQLResults 

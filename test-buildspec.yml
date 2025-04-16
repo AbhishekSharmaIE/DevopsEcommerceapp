@@ -2,25 +2,26 @@ version: 0.2
 
 phases:
   install:
+    runtime-versions:
+      python: 3.9
     commands:
-      - pip install pylint
+      - echo "Installing dependencies..."
+      - python -m pip install --upgrade pip
       - pip install -r requirements.txt
+      - pip install pytest pytest-cov pylint
+
+  pre_build:
+    commands:
+      - echo "Running pylint..."
+      - pylint --output-format=text app/app.py > pylint-report.txt
+
   build:
     commands:
-      - echo "Running Pylint analysis..."
-      - pylint --output-format=json app/ > pylint-report.json || true
-      - echo "Pylint analysis completed"
-      - mkdir -p test-artifacts
-      - cp pylint-report.json test-artifacts/
-
-reports:
-  pylint:
-    files:
-      - 'pylint-report.json'
-    file-format: 'JSON'
-    base-directory: '.'
+      - echo "Running tests..."
+      - pytest --cov=. --cov-report=xml
 
 artifacts:
   files:
-    - 'test-artifacts/**/*'
-  name: TestArtifacts 
+    - coverage.xml
+    - pylint-report.txt
+  name: TestResults 

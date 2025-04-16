@@ -1,0 +1,25 @@
+version: 0.2
+
+phases:
+  install:
+    runtime-versions:
+      python: 3.9
+    commands:
+      - echo "Installing dependencies..."
+      - python -m pip install --upgrade pip
+      - pip install -r requirements.txt
+
+  build:
+    commands:
+      - echo "Building application..."
+      - mkdir -p build
+      - cp -r app/ build/
+      - cp requirements.txt build/
+      - cp appspec.yml build/
+      - cp scripts/* build/
+      - echo "Build completed"
+
+artifacts:
+  files:
+    - build/**
+  name: BuildArtifact 
