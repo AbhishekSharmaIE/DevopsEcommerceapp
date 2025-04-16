@@ -110,6 +110,7 @@ jobs:
           
           # Create directory if it doesn't exist
           sudo mkdir -p /var/www/html/ecommerce
+          sudo mkdir -p /var/www/html/ecommerce/app/static/images/products
           
           # Set proper permissions
           sudo chown -R ubuntu:ubuntu /var/www/html/ecommerce
@@ -137,12 +138,16 @@ jobs:
           sudo systemctl enable gunicorn
           sudo systemctl start gunicorn
           
+          # Wait for Gunicorn to start
+          sleep 5
+          
           echo "Setting up Nginx..."
           # Setup Nginx
           sudo apt-get install -y nginx
           sudo cp nginx.conf /etc/nginx/sites-available/ecommerce
           sudo ln -sf /etc/nginx/sites-available/ecommerce /etc/nginx/sites-enabled/
           sudo rm -f /etc/nginx/sites-enabled/default
+          sudo nginx -t
           sudo systemctl restart nginx
           
           echo "Verifying services..."
@@ -160,6 +165,8 @@ jobs:
           echo "Checking Gunicorn error log:"
           sudo journalctl -u gunicorn -n 20
           echo "Checking directory permissions:"
+          ls -la /var/www/html/ecommerce/app/static/images/products/
+          echo "Checking static files:"
           ls -la /var/www/html/ecommerce/app/static/images/products/
         ENDSSH
         )
